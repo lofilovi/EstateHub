@@ -20,9 +20,9 @@ namespace EstateHub_code.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Apartment>>> GetApartments()
         {
-            // .Include gör en SQL JOIN i bakgrunden helt automatiskt!
             return await _context.Apartments
-                .Include(a => a.Property)
+                .Include(a => a.Property) // Hämta huset
+                .Include(a => a.Tenant)   // Hämta personen som bor där
                 .ToListAsync();
         }
 

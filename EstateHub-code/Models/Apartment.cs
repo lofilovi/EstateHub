@@ -16,5 +16,11 @@ namespace EstateHub_code.Models
         // Detta gör att vi kan skriva lägenhet.Property.Address
         [ForeignKey("PropertyID")]
         public virtual Property? Property { get; set; }
+
+        // Lägg till detta i Models/Apartment.cs
+        public int? TenantID { get; set; } // Nullable (?) för lägenheten kan vara tom
+
+        [ForeignKey("TenantID")]
+        public virtual Tenant? Tenant { get; set; }
     }
 }

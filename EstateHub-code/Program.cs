@@ -16,7 +16,12 @@ namespace EstateHub_code
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+             .AddJsonOptions(options =>
+             {
+                 // Detta förhindrar att JSON-datan "snurrar runt" i cirklar
+                 options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+             });
             builder.Services.AddOpenApi();
 
             // 3. Nu bygger vi appen - efter detta är "ritningen" låst
@@ -29,6 +34,8 @@ namespace EstateHub_code
             }
 
             app.UseHttpsRedirection();
+            app.UseDefaultFiles(); // Gör att den letar efter index.html automatiskt
+            app.UseStaticFiles();  // Tillåter att servern skickar HTML/CSS/JS-filer
             app.UseAuthorization();
             app.MapControllers();
 

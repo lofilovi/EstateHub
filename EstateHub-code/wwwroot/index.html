@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>EstateHub Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+
+        .status-vacant {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-occupied {
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏡 EstateHub - Apartments</h1>
+    <table id="apartmentTable">
+        <thead>
+            <tr>
+                <th>Apartment</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>Rent</th>
+                <th>Tenant</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Datan hamnar här via JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        async function loadApartments() {
+            const response = await fetch('/api/apartments');
+            const apartments = await response.json();
+            const tbody = document.querySelector('#apartmentTable tbody');
+
+            apartments.forEach(apt => {
+                const row = `<tr>
+                    <td>${apt.apartmentNumber}</td>
+                    <td>${apt.property ? apt.property.address : 'N/A'}</td>
+                    <td>${apt.property ? apt.property.city : 'N/A'}</td>
+                    <td>${apt.rent} kr</td>
+                    <td class="${apt.tenant ? 'status-occupied' : 'status-vacant'}">
+                        ${apt.tenant ? apt.tenant.name : 'VACANT'}
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+        loadApartments();
+    </script>
+</body>
+</html>
