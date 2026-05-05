@@ -1,0 +1,6 @@
+@EstateHub_code_HostAddress = http://localhost:5008
+
+GET {{EstateHub_code_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
