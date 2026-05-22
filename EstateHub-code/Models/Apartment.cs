@@ -11,6 +11,15 @@ namespace EstateHub_code.Models
         public string ApartmentNumber { get; set; } = "";
         public double Size { get; set; }
         public decimal Rent { get; set; }
+        public int Rooms { get; set; }
+        public int Floor { get; set; }
+        public string Status { get; set; } = "Ledig";
+        public DateTime? AvailableFrom { get; set; }
+        public bool ElectricityIncluded { get; set; }
+        public bool WaterIncluded { get; set; }
+        public bool InternetIncluded { get; set; }
+        public bool Balcony { get; set; }
+        public bool Furnished { get; set; }
 
         // --- NAVIGATION PROPERTY ---
         // Detta gör att vi kan skriva lägenhet.Property.Address

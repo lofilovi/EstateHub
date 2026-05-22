@@ -1,81 +1,247 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>EstateHub Dashboard</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            background: #f4f4f4;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background: #333;
-            color: white;
-        }
-
-        .status-vacant {
-            color: green;
-            font-weight: bold;
-        }
-
-        .status-occupied {
-            color: orange;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EstateHub - Lägenheter</title>
+    <link rel="stylesheet" href="app.css">
 </head>
 <body>
-    <h1>🏡 EstateHub - Apartments</h1>
-    <table id="apartmentTable">
-        <thead>
-            <tr>
-                <th>Apartment</th>
-                <th>Address</th>
-                <th>City</th>
-                <th>Rent</th>
-                <th>Tenant</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Datan hamnar här via JavaScript -->
-        </tbody>
-    </table>
+    <main class="app-shell">
+        <aside class="side-nav" aria-label="Huvudmeny">
+            <a class="brand-dot" href="dashboard.html" title="EstateHub">EH</a>
+            <nav class="nav-stack">
+                <a class="nav-dot" href="dashboard.html" title="Start">ST</a>
+                <a class="nav-dot active" href="index.html" title="Lägenheter">LG</a>
+                <a class="nav-dot" href="tenants.html" title="Hyresgäster">HG</a>
+            </nav>
+            <span class="nav-dot" aria-hidden="true">DB</span>
+        </aside>
+
+        <section class="content">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Lägenheter</p>
+                    <h1>Objekt och egenskaper</h1>
+                    <p class="lead">Lägg till lägenheter, se status och följ vad som ingår.</p>
+                </div>
+                <form id="numberSearchForm" class="search-pill">
+                    <input id="numberSearch" type="search" placeholder="Sök lägenhetsnummer...">
+                    <button class="icon-button" type="submit" aria-label="Sök">Sök</button>
+                </form>
+            </header>
+
+            <section class="dashboard-grid">
+                <article class="card span-12" aria-labelledby="apartmentFormTitle">
+                    <h2 id="apartmentFormTitle">Lägg till lägenhet</h2>
+                    <form id="apartmentForm">
+                        <div class="form-grid">
+                            <label>Lägenhetsnummer <input id="apartmentNumber" type="text" required></label>
+                            <label>Storlek, kvm <input id="size" type="number" min="1" step="0.1" required></label>
+                            <label>Hyra, kr <input id="rent" type="number" min="0" step="1" required></label>
+                            <label>Fastighet <select id="propertyId" required><option value="">Välj fastighet</option></select></label>
+                            <label>Rum <input id="rooms" type="number" min="0" step="1" value="1"></label>
+                            <label>Våning <input id="floor" type="number" step="1" value="0"></label>
+                            <label>Status
+                                <select id="status">
+                                    <option value="Ledig">Ledig</option>
+                                    <option value="Uthyrd">Uthyrd</option>
+                                    <option value="Reserverad">Reserverad</option>
+                                    <option value="Renoveras">Renoveras</option>
+                                </select>
+                            </label>
+                            <label>Tillgänglig från <input id="availableFrom" type="date"></label>
+                        </div>
+
+                        <div class="feature-grid" aria-label="Lägenhetsegenskaper">
+                            <label class="check-label"><input id="electricityIncluded" type="checkbox"> El ingår</label>
+                            <label class="check-label"><input id="waterIncluded" type="checkbox"> Vatten ingår</label>
+                            <label class="check-label"><input id="internetIncluded" type="checkbox"> Internet ingår</label>
+                            <label class="check-label"><input id="balcony" type="checkbox"> Balkong</label>
+                            <label class="check-label"><input id="furnished" type="checkbox"> Möblerad</label>
+                        </div>
+
+                        <div class="actions">
+                            <button type="submit">Spara lägenhet</button>
+                        </div>
+                        <div id="apartmentMessage" class="message" role="status"></div>
+                    </form>
+                </article>
+
+                <article class="table-card span-12" aria-labelledby="apartmentListTitle">
+                    <h2 id="apartmentListTitle">Lägenheter</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Lägenhet</th>
+                                    <th>Fastighet</th>
+                                    <th>Plan</th>
+                                    <th>Hyra</th>
+                                    <th>Status</th>
+                                    <th>Egenskaper</th>
+                                    <th>Hyresgäst</th>
+                                </tr>
+                            </thead>
+                            <tbody id="apartmentRows"></tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+        </section>
+    </main>
 
     <script>
-        async function loadApartments() {
-            const response = await fetch('/api/apartments');
-            const apartments = await response.json();
-            const tbody = document.querySelector('#apartmentTable tbody');
+        const apartmentForm = document.getElementById('apartmentForm');
+        const apartmentRows = document.getElementById('apartmentRows');
+        const propertySelect = document.getElementById('propertyId');
+        const message = document.getElementById('apartmentMessage');
+        const numberSearchForm = document.getElementById('numberSearchForm');
+        const numberSearch = document.getElementById('numberSearch');
 
-            apartments.forEach(apt => {
-                const row = `<tr>
-                    <td>${apt.apartmentNumber}</td>
-                    <td>${apt.property ? apt.property.address : 'N/A'}</td>
-                    <td>${apt.property ? apt.property.city : 'N/A'}</td>
-                    <td>${apt.rent} kr</td>
-                    <td class="${apt.tenant ? 'status-occupied' : 'status-vacant'}">
-                        ${apt.tenant ? apt.tenant.name : 'VACANT'}
-                    </td>
-                </tr>`;
-                tbody.innerHTML += row;
+        function setMessage(text, type = 'info') {
+            message.textContent = text;
+            message.className = `message ${type}`;
+        }
+
+        function clearMessage() {
+            message.textContent = '';
+            message.className = 'message';
+        }
+
+        function tenantName(tenant) {
+            return tenant ? [tenant.firstName, tenant.lastName].filter(Boolean).join(' ').trim() : '';
+        }
+
+        function formatDate(value) {
+            return value ? new Date(value).toLocaleDateString('sv-SE') : '';
+        }
+
+        function featurePills(apartment) {
+            const features = [
+                apartment.electricityIncluded ? 'El' : null,
+                apartment.waterIncluded ? 'Vatten' : null,
+                apartment.internetIncluded ? 'Internet' : null,
+                apartment.balcony ? 'Balkong' : null,
+                apartment.furnished ? 'Möblerad' : null,
+                apartment.availableFrom ? `Från ${formatDate(apartment.availableFrom)}` : null
+            ].filter(Boolean);
+
+            return features.length
+                ? features.map((feature) => `<span class="feature-pill">${feature}</span>`).join('')
+                : '<span class="muted">Inga valda</span>';
+        }
+
+        async function requestJson(url, options) {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`Request failed: ${response.status}`);
+            }
+            return response.status === 204 ? null : response.json();
+        }
+
+        async function loadProperties() {
+            const properties = await requestJson('/api/property');
+            propertySelect.innerHTML = '<option value="">Välj fastighet</option>';
+            properties.forEach((property) => {
+                const option = document.createElement('option');
+                option.value = property.propertyId;
+                option.textContent = `${property.address}, ${property.city}`;
+                propertySelect.appendChild(option);
             });
         }
-        loadApartments();
+
+        async function loadApartments() {
+            const apartments = await requestJson('/api/apartments');
+            apartmentRows.innerHTML = '';
+
+            if (apartments.length === 0) {
+                apartmentRows.innerHTML = '<tr><td colspan="7">Inga lägenheter hittades.</td></tr>';
+                return;
+            }
+
+            apartments.forEach((apartment) => {
+                const name = tenantName(apartment.tenant);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="apartment.html?id=${apartment.apartmentID}"><strong>${apartment.apartmentNumber}</strong></a><div class="muted">${apartment.size} kvm</div></td>
+                    <td>${apartment.property?.address ?? '-'}<div class="muted">${apartment.property?.city ?? ''}</div></td>
+                    <td>${apartment.rooms || 0} rum, vån ${apartment.floor ?? 0}</td>
+                    <td>${apartment.rent} kr</td>
+                    <td>${apartment.status || 'Ledig'}</td>
+                    <td>${featurePills(apartment)}</td>
+                    <td><span class="badge ${name ? 'occupied' : 'vacant'}">${name || 'Ledig'}</span></td>
+                `;
+                apartmentRows.appendChild(row);
+            });
+        }
+
+        numberSearchForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const number = numberSearch.value.trim();
+            if (!number) {
+                return;
+            }
+
+            const response = await fetch(`/api/apartments/number/${encodeURIComponent(number)}`);
+            if (response.ok) {
+                const apartment = await response.json();
+                window.location.href = `apartment.html?id=${apartment.apartmentID}`;
+                return;
+            }
+
+            setMessage('Hittade ingen lägenhet med det numret.', 'error');
+        });
+
+        apartmentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearMessage();
+
+            const availableFrom = document.getElementById('availableFrom').value;
+            const apartment = {
+                apartmentNumber: document.getElementById('apartmentNumber').value.trim(),
+                size: Number(document.getElementById('size').value),
+                rent: Number(document.getElementById('rent').value),
+                propertyID: Number(propertySelect.value),
+                rooms: Number(document.getElementById('rooms').value),
+                floor: Number(document.getElementById('floor').value),
+                status: document.getElementById('status').value,
+                availableFrom: availableFrom || null,
+                electricityIncluded: document.getElementById('electricityIncluded').checked,
+                waterIncluded: document.getElementById('waterIncluded').checked,
+                internetIncluded: document.getElementById('internetIncluded').checked,
+                balcony: document.getElementById('balcony').checked,
+                furnished: document.getElementById('furnished').checked,
+                tenantID: null
+            };
+
+            try {
+                await requestJson('/api/apartments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(apartment)
+                });
+                apartmentForm.reset();
+                document.getElementById('rooms').value = '1';
+                document.getElementById('floor').value = '0';
+                await loadApartments();
+                setMessage('Lägenheten sparades.');
+            } catch (error) {
+                console.error(error);
+                setMessage('Kunde inte spara lägenheten. Kontrollera uppgifterna och databasen.', 'error');
+            }
+        });
+
+        async function init() {
+            try {
+                await Promise.all([loadProperties(), loadApartments()]);
+            } catch (error) {
+                console.error(error);
+                setMessage('Kunde inte ladda data från servern.', 'error');
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>

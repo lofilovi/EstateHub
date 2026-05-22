@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EstateHub - Hyresgäster</title>
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <main class="app-shell">
+        <aside class="side-nav" aria-label="Huvudmeny">
+            <a class="brand-dot" href="dashboard.html" title="EstateHub">EH</a>
+            <nav class="nav-stack">
+                <a class="nav-dot" href="dashboard.html" title="Start">ST</a>
+                <a class="nav-dot" href="index.html" title="Lägenheter">LG</a>
+                <a class="nav-dot active" href="tenants.html" title="Hyresgäster">HG</a>
+            </nav>
+            <span class="nav-dot" aria-hidden="true">DB</span>
+        </aside>
+
+        <section class="content">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Hyresgäster</p>
+                    <h1>Kontakter och uppgifter</h1>
+                    <p class="lead">Sök, registrera och uppdatera hyresgäster.</p>
+                </div>
+                <div class="search-pill">
+                    <input id="tenantFilter" type="search" placeholder="Personnummer, förnamn eller efternamn">
+                    <button id="clearFilterButton" class="icon-button" type="button" aria-label="Rensa">Rensa</button>
+                </div>
+            </header>
+
+            <section class="dashboard-grid">
+                <article class="card span-12" aria-labelledby="tenantFormTitle">
+                    <h2 id="tenantFormTitle">Registrera ny hyresgäst</h2>
+                    <form id="tenantForm">
+                        <input id="tenantId" type="hidden">
+                        <div class="form-grid">
+                            <label>Förnamn <input id="firstName" type="text" required></label>
+                            <label>Efternamn <input id="lastName" type="text" required></label>
+                            <label>Personnummer <input id="personalNumber" type="text" placeholder="YYYYMMDD-XXXX"></label>
+                            <label>Mobilnummer <input id="mobilePhone" type="tel"></label>
+                            <label>Telefon <input id="phone" type="tel"></label>
+                            <label>E-post <input id="email" type="email"></label>
+                            <label style="grid-column: span 2;">Adress <input id="address" type="text"></label>
+                        </div>
+                        <div class="actions">
+                            <button id="saveButton" type="submit">Registrera</button>
+                            <button id="cancelButton" class="secondary" type="button" hidden>Avbryt</button>
+                        </div>
+                        <div id="tenantMessage" class="message" role="status"></div>
+                    </form>
+                </article>
+
+                <article class="table-card span-12" aria-labelledby="tenantListTitle">
+                    <h2 id="tenantListTitle">Hyresgäster</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Namn</th>
+                                    <th>Personnummer</th>
+                                    <th>Adress</th>
+                                    <th>Mobil</th>
+                                    <th>Telefon</th>
+                                    <th>E-post</th>
+                                    <th>Åtgärd</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenantRows"></tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const tenantForm = document.getElementById('tenantForm');
+        const tenantRows = document.getElementById('tenantRows');
+        const tenantId = document.getElementById('tenantId');
+        const tenantFilter = document.getElementById('tenantFilter');
+        const clearFilterButton = document.getElementById('clearFilterButton');
+        const formTitle = document.getElementById('tenantFormTitle');
+        const saveButton = document.getElementById('saveButton');
+        const cancelButton = document.getElementById('cancelButton');
+        const message = document.getElementById('tenantMessage');
+        const params = new URLSearchParams(window.location.search);
+        const selectedTenantId = Number(params.get('tenantId'));
+        const initialSearch = params.get('search') || '';
+
+        let tenants = [];
+
+        function setMessage(text, type = 'info') {
+            message.textContent = text;
+            message.className = `message ${type}`;
+        }
+
+        function clearMessage() {
+            message.textContent = '';
+            message.className = 'message';
+        }
+
+        function resetForm() {
+            tenantForm.reset();
+            tenantId.value = '';
+            formTitle.textContent = 'Registrera ny hyresgäst';
+            saveButton.textContent = 'Registrera';
+            cancelButton.hidden = true;
+            clearMessage();
+        }
+
+        function tenantName(tenant) {
+            return [tenant.firstName, tenant.lastName].filter(Boolean).join(' ').trim() || '-';
+        }
+
+        function tenantMatches(tenant, query) {
+            if (!query) {
+                return true;
+            }
+
+            const text = [
+                tenant.firstName,
+                tenant.lastName,
+                tenantName(tenant),
+                tenant.personalNumber,
+                tenant.mobilePhone,
+                tenant.phone,
+                tenant.email,
+                tenant.address
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            return text.includes(query.toLowerCase());
+        }
+
+        async function requestJson(url, options) {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`Request failed: ${response.status}`);
+            }
+            return response.status === 204 ? null : response.json();
+        }
+
+        function renderTenants() {
+            const query = tenantFilter.value.trim();
+            const visibleTenants = tenants.filter((tenant) => tenantMatches(tenant, query));
+            tenantRows.innerHTML = '';
+
+            if (visibleTenants.length === 0) {
+                tenantRows.innerHTML = '<tr><td colspan="7">Inga hyresgäster hittades.</td></tr>';
+                return;
+            }
+
+            visibleTenants.forEach((tenant) => {
+                const row = document.createElement('tr');
+                if (tenant.tenantID === selectedTenantId) {
+                    row.classList.add('highlight');
+                }
+
+                row.innerHTML = `
+                    <td><strong>${tenantName(tenant)}</strong></td>
+                    <td>${tenant.personalNumber || '-'}</td>
+                    <td>${tenant.address || '-'}</td>
+                    <td>${tenant.mobilePhone || '-'}</td>
+                    <td>${tenant.phone || '-'}</td>
+                    <td>${tenant.email || '-'}</td>
+                    <td>
+                        <div class="row-actions">
+                            <button class="secondary" type="button" data-edit-id="${tenant.tenantID}">Ändra</button>
+                            <button class="danger" type="button" data-delete-id="${tenant.tenantID}">Ta bort</button>
+                        </div>
+                    </td>
+                `;
+                tenantRows.appendChild(row);
+            });
+        }
+
+        async function loadTenants() {
+            tenants = await requestJson('/api/tenants');
+            if (initialSearch) {
+                tenantFilter.value = initialSearch;
+            }
+            renderTenants();
+
+            if (selectedTenantId) {
+                editTenant(selectedTenantId);
+            }
+        }
+
+        function editTenant(id) {
+            const tenant = tenants.find((item) => item.tenantID === id);
+            if (!tenant) {
+                return;
+            }
+
+            tenantId.value = tenant.tenantID;
+            document.getElementById('firstName').value = tenant.firstName || '';
+            document.getElementById('lastName').value = tenant.lastName || '';
+            document.getElementById('personalNumber').value = tenant.personalNumber || '';
+            document.getElementById('address').value = tenant.address || '';
+            document.getElementById('mobilePhone').value = tenant.mobilePhone || '';
+            document.getElementById('phone').value = tenant.phone || '';
+            document.getElementById('email').value = tenant.email || '';
+            formTitle.textContent = 'Ändra hyresgäst';
+            saveButton.textContent = 'Spara ändringar';
+            cancelButton.hidden = false;
+            clearMessage();
+            tenantForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        tenantRows.addEventListener('click', (event) => {
+            const editButton = event.target.closest('[data-edit-id]');
+            const deleteButton = event.target.closest('[data-delete-id]');
+
+            if (editButton) {
+                editTenant(Number(editButton.dataset.editId));
+                return;
+            }
+
+            if (deleteButton) {
+                deleteTenant(Number(deleteButton.dataset.deleteId));
+            }
+        });
+
+        async function deleteTenant(id) {
+            const tenant = tenants.find((item) => item.tenantID === id);
+            const name = tenant ? tenantName(tenant) : 'hyresgästen';
+
+            if (!confirm(`Vill du ta bort ${name}? Lägenheter som är kopplade till hyresgästen blir lediga.`)) {
+                return;
+            }
+
+            try {
+                await requestJson(`/api/tenants/${id}`, { method: 'DELETE' });
+
+                if (Number(tenantId.value) === id) {
+                    resetForm();
+                }
+
+                setMessage('Hyresgästen togs bort.');
+                await loadTenants();
+            } catch (error) {
+                console.error(error);
+                setMessage('Kunde inte ta bort hyresgästen.', 'error');
+            }
+        }
+
+        tenantFilter.addEventListener('input', renderTenants);
+        clearFilterButton.addEventListener('click', () => {
+            tenantFilter.value = '';
+            renderTenants();
+        });
+        cancelButton.addEventListener('click', resetForm);
+
+        tenantForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearMessage();
+
+            const id = tenantId.value;
+            const tenant = {
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                personalNumber: document.getElementById('personalNumber').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                mobilePhone: document.getElementById('mobilePhone').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                email: document.getElementById('email').value.trim()
+            };
+
+            try {
+                if (id) {
+                    tenant.tenantID = Number(id);
+                    await requestJson(`/api/tenants/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(tenant)
+                    });
+                    resetForm();
+                    setMessage('Hyresgästen uppdaterades.');
+                } else {
+                    await requestJson('/api/tenants', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(tenant)
+                    });
+                    resetForm();
+                    setMessage('Hyresgästen sparades.');
+                }
+
+                await loadTenants();
+            } catch (error) {
+                console.error(error);
+                setMessage('Kunde inte spara hyresgästen. Kontrollera uppgifterna och databasen.', 'error');
+            }
+        });
+
+        loadTenants().catch((error) => {
+            console.error(error);
+            setMessage('Kunde inte ladda hyresgäster från servern.', 'error');
+        });
+    </script>
+</body>
+</html>

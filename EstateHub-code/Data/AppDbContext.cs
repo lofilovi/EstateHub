@@ -19,13 +19,37 @@ namespace EstateHub_code.Data
             );
 
             // 2. Skapa en test-hyresgäst
+            // 2. Skapa en test-hyresgäst (Uppdaterad med för- och efternamn)
             modelBuilder.Entity<Tenant>().HasData(
-                new Tenant { TenantID = 1, Name = "Viktor Nilsson", Phone = "070-1234567", Email = "viktor@test.com" }
+                new Tenant
+                {
+                    TenantID = 1,
+                    FirstName = "Viktor",
+                    LastName = "Nilsson",
+                    Phone = "070-1234567",
+                    Email = "viktor@test.com"
+                }
             );
 
             // 3. Skapa en lägenhet som kopplar ihop båda
             modelBuilder.Entity<Apartment>().HasData(
-                new Apartment { ApartmentID = 1, PropertyID = 1, TenantID = 1, ApartmentNumber = "999", Size = 50, Rent = 5000 }
+                new Apartment
+                {
+                    ApartmentID = 1,
+                    PropertyID = 1,
+                    TenantID = 1,
+                    ApartmentNumber = "999",
+                    Size = 50,
+                    Rent = 5000,
+                    Rooms = 2,
+                    Floor = 3,
+                    Status = "Uthyrd",
+                    ElectricityIncluded = false,
+                    WaterIncluded = true,
+                    InternetIncluded = false,
+                    Balcony = true,
+                    Furnished = false
+                }
             );
         }
     }

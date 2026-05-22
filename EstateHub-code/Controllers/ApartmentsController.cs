@@ -30,7 +30,27 @@ namespace EstateHub_code.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Apartment>> GetApartment(int id)
         {
-            var apartment = await _context.Apartments.FindAsync(id);
+            var apartment = await _context.Apartments
+                .Include(a => a.Property)
+                .Include(a => a.Tenant)
+                .FirstOrDefaultAsync(a => a.ApartmentID == id);
+
+            if (apartment == null)
+            {
+                return NotFound();
+            }
+
+            return apartment;
+        }
+
+        // GET: api/apartments/number/1001
+        [HttpGet("number/{apartmentNumber}")]
+        public async Task<ActionResult<Apartment>> GetApartmentByNumber(string apartmentNumber)
+        {
+            var apartment = await _context.Apartments
+                .Include(a => a.Property)
+                .Include(a => a.Tenant)
+                .FirstOrDefaultAsync(a => a.ApartmentNumber == apartmentNumber);
 
             if (apartment == null)
             {
