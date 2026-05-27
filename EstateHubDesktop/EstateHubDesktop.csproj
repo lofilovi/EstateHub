@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EstateHub-code\Data\AppDbContext.cs" Link="Data\AppDbContext.cs" />
+    <Compile Include="..\EstateHub-code\Models\Apartment.cs" Link="Models\Apartment.cs" />
+    <Compile Include="..\EstateHub-code\Models\Property.cs" Link="Models\Property.cs" />
+    <Compile Include="..\EstateHub-code\Models\Tenant.cs" Link="Models\Tenant.cs" />
+  </ItemGroup>
+
+</Project>

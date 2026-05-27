@@ -1,38 +1,764 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EstateHub - Lägenheter</title>
-    <link rel="stylesheet" href="app.css">
+    <title>EstateHub Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #e9e9e9;
+            color: #111;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 230px;
+            background: #fff;
+            border-right: 1px solid #d7d7d7;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-top {
+            padding-top: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 35px 30px;
+            font-size: 30px;
+            font-weight: 700;
+            color: #111;
+        }
+
+        .logo i {
+            color: #5b96b7;
+            font-size: 28px;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #222;
+            padding: 14px 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .menu a:hover {
+            background: #edf5fa;
+        }
+
+        .menu .active {
+            background: #d9eaf3;
+            border-left: 6px solid #5b96b7;
+            color: #5b96b7;
+            font-weight: 600;
+        }
+
+        .sidebar-bottom {
+            padding: 30px 0;
+        }
+
+        .main {
+            margin-left: 230px;
+            width: calc(100% - 230px);
+        }
+
+        .topbar {
+            background: #fff;
+            height: 95px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            border-bottom: 1px solid #d8d8d8;
+        }
+
+        .search-box {
+            width: 340px;
+            height: 42px;
+            border: 1px solid #5b96b7;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            gap: 12px;
+            background: #fff;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+            color: #555;
+        }
+
+        .search-box i {
+            color: #5b96b7;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .notification {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #5b96b7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            color: #5b96b7;
+            cursor: pointer;
+        }
+
+        .notification::after {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: #e53935;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            right: 12px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .profile img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-info h4 {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+
+        .profile-info p {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 38px;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .content-header h1 {
+            font-size: 52px;
+            font-weight: 700;
+        }
+
+        .add-btn {
+            background: #5b96b7;
+            color: #fff;
+            border: none;
+            padding: 18px 28px;
+            border-radius: 12px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .add-btn:hover,
+        .search-btn:hover,
+        .save-btn:hover {
+            background: #4a84a4;
+        }
+
+        .filter-box,
+        .form-box {
+            background: #f8f8f8;
+            padding: 22px;
+            border-radius: 18px;
+            display: flex;
+            gap: 16px;
+            margin-bottom: 35px;
+        }
+
+        .form-box {
+            display: none;
+            flex-direction: column;
+        }
+
+        .form-box.open {
+            display: flex;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .feature-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .form-box label {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .filter-box select,
+        .form-box select,
+        .form-box input {
+            width: 200px;
+            height: 50px;
+            border: 1px solid #5b96b7;
+            border-radius: 12px;
+            padding: 0 15px;
+            font-size: 15px;
+            outline: none;
+            background: #fff;
+            color: #666;
+        }
+
+        .form-box input[type="checkbox"] {
+            width: auto;
+            height: auto;
+        }
+
+        .check-label {
+            flex-direction: row !important;
+            align-items: center;
+        }
+
+        .search-btn,
+        .save-btn {
+            width: 160px;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            background: #5b96b7;
+            color: #fff;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        .message {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .message.info {
+            display: block;
+            color: #3b7594;
+            background: #edf5fa;
+        }
+
+        .message.error {
+            display: block;
+            color: #b42318;
+            background: #fff0ee;
+        }
+
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 28px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .card img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 18px;
+        }
+
+        .card h2 {
+            font-size: 26px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+        }
+
+        .property-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 10px;
+            color: #777;
+            font-size: 15px;
+        }
+
+        .location {
+            color: #777;
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .read-more {
+            text-decoration: none;
+            color: #777;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            .property-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 90px;
+            }
+
+            .sidebar .logo span,
+            .sidebar .menu span {
+                display: none;
+            }
+
+            .main {
+                margin-left: 90px;
+                width: calc(100% - 90px);
+            }
+
+            .menu a {
+                justify-content: center;
+            }
+
+            .filter-box {
+                flex-wrap: wrap;
+            }
+
+            .filter-box select,
+            .form-box select,
+            .form-box input {
+                width: 100%;
+            }
+
+            .search-btn,
+            .save-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .topbar {
+                flex-direction: column;
+                height: auto;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .property-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dashboard-section {
+            margin-top: 60px;
+        }
+
+        .section-title {
+            margin-bottom: 25px;
+        }
+
+        .section-title h1 {
+            font-size: 42px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .calendar-card,
+        .stats-card,
+        .inspection-card,
+        .settings-box {
+            background: #fff;
+            border-radius: 18px;
+        }
+
+        .calendar-card {
+            padding: 30px;
+        }
+
+        .calendar-card h3 {
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .meeting {
+            margin-bottom: 18px;
+        }
+
+        .meeting-time {
+            font-weight: 700;
+            color: #5b96b7;
+            margin-bottom: 5px;
+        }
+
+        .calendar-card ul {
+            padding-left: 18px;
+            color: #555;
+            line-height: 2;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .stats-card {
+            padding: 35px;
+            text-align: center;
+        }
+
+        .stats-card h2 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .stats-card p {
+            color: #777;
+        }
+
+        .table-container {
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #5b96b7;
+            color: #fff;
+        }
+
+        th,
+        td {
+            padding: 18px 22px;
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #ececec;
+        }
+
+        tbody tr:hover {
+            background: #f8f8f8;
+        }
+
+        .status {
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .open {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .progress {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .closed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .inspection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .inspection-card {
+            padding: 30px;
+        }
+
+        .inspection-card h3 {
+            margin-bottom: 15px;
+        }
+
+        .inspection-card p {
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .inspection-card button {
+            margin-top: 15px;
+            border: none;
+            background: #5b96b7;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .settings-box {
+            padding: 35px;
+            width: 500px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        @media (max-width: 1100px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .inspection-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-box {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <main class="app-shell">
-        <aside class="side-nav" aria-label="Huvudmeny">
-            <a class="brand-dot" href="dashboard.html" title="EstateHub">EH</a>
-            <nav class="nav-stack">
-                <a class="nav-dot" href="dashboard.html" title="Start">ST</a>
-                <a class="nav-dot active" href="index.html" title="Lägenheter">LG</a>
-                <a class="nav-dot" href="tenants.html" title="Hyresgäster">HG</a>
-            </nav>
-            <span class="nav-dot" aria-hidden="true">DB</span>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <a class="logo" href="dashboard.html" style="text-decoration:none;">
+                    <i class="fa-solid fa-house"></i>
+                    <span>EstateHub</span>
+                </a>
+
+                <nav class="menu">
+                    <a href="index.html" class="active">
+                        <i class="fa-solid fa-table-cells-large"></i>
+                        <span>Overview</span>
+                    </a>
+                    <a href="#calendarSection">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>Calendar</span>
+                    </a>
+                    <a href="#rentalsSection">
+                        <i class="fa-regular fa-building"></i>
+                        <span>Rentals</span>
+                    </a>
+                    <a href="#customerCareSection">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Customer Care</span>
+                    </a>
+                    <a href="#accountingSection">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Accounting</span>
+                    </a>
+                    <a href="#ordersSection">
+                        <i class="fa-solid fa-box"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="#inspectionsSection">
+                        <i class="fa-regular fa-clipboard"></i>
+                        <span>Inspections</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="sidebar-bottom">
+                <nav class="menu">
+                    <a href="#">
+                        <i class="fa-regular fa-circle-question"></i>
+                        <span>Help</span>
+                    </a>
+                    <a href="#settingsSection">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Log Out</span>
+                    </a>
+                </nav>
+            </div>
         </aside>
 
-        <section class="content">
+        <main class="main">
             <header class="topbar">
-                <div>
-                    <p class="eyebrow">Lägenheter</p>
-                    <h1>Objekt och egenskaper</h1>
-                    <p class="lead">Lägg till lägenheter, se status och följ vad som ingår.</p>
-                </div>
-                <form id="numberSearchForm" class="search-pill">
-                    <input id="numberSearch" type="search" placeholder="Sök lägenhetsnummer...">
-                    <button class="icon-button" type="submit" aria-label="Sök">Sök</button>
+                <form id="topSearchForm" class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="topSearch" type="text" placeholder="Search...">
                 </form>
+
+                <div class="top-right">
+                    <div class="notification">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                    <div class="profile">
+                        <img src="https://i.pravatar.cc/150?img=12" alt="profile">
+                        <div class="profile-info">
+                            <h4>Viktor Nilsson</h4>
+                            <p>EstateHub</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
             </header>
 
-            <section class="dashboard-grid">
-                <article class="card span-12" aria-labelledby="apartmentFormTitle">
+            <section class="content">
+                <div class="content-header">
+                    <h1>Apartments</h1>
+                    <button id="toggleFormButton" class="add-btn" type="button">
+                        <i class="fa-solid fa-plus"></i>
+                        Add Property
+                    </button>
+                </div>
+
+                <div class="filter-box">
+                    <select id="sizeFilter">
+                        <option value="">Property Size...</option>
+                        <option value="small">Under 45 kvm</option>
+                        <option value="medium">45-70 kvm</option>
+                        <option value="large">Över 70 kvm</option>
+                    </select>
+
+                    <select id="statusFilter">
+                        <option value="">Property Type...</option>
+                        <option value="Ledig">Ledig</option>
+                        <option value="Uthyrd">Uthyrd</option>
+                        <option value="Reserverad">Reserverad</option>
+                        <option value="Renoveras">Renoveras</option>
+                    </select>
+
+                    <select id="locationFilter">
+                        <option value="">Location...</option>
+                    </select>
+
+                    <button id="filterButton" class="search-btn" type="button">Search</button>
+                </div>
+
+                <section id="formPanel" class="form-box" aria-labelledby="apartmentFormTitle">
                     <h2 id="apartmentFormTitle">Lägg till lägenhet</h2>
                     <form id="apartmentForm">
                         <div class="form-grid">
@@ -53,7 +779,7 @@
                             <label>Tillgänglig från <input id="availableFrom" type="date"></label>
                         </div>
 
-                        <div class="feature-grid" aria-label="Lägenhetsegenskaper">
+                        <div class="feature-grid" style="margin:18px 0;">
                             <label class="check-label"><input id="electricityIncluded" type="checkbox"> El ingår</label>
                             <label class="check-label"><input id="waterIncluded" type="checkbox"> Vatten ingår</label>
                             <label class="check-label"><input id="internetIncluded" type="checkbox"> Internet ingår</label>
@@ -61,43 +787,244 @@
                             <label class="check-label"><input id="furnished" type="checkbox"> Möblerad</label>
                         </div>
 
-                        <div class="actions">
-                            <button type="submit">Spara lägenhet</button>
-                        </div>
-                        <div id="apartmentMessage" class="message" role="status"></div>
+                        <button class="save-btn" type="submit">Spara</button>
+                        <div id="apartmentMessage" class="message" role="status" style="margin-top:16px;"></div>
                     </form>
-                </article>
+                </section>
 
-                <article class="table-card span-12" aria-labelledby="apartmentListTitle">
-                    <h2 id="apartmentListTitle">Lägenheter</h2>
-                    <div class="table-wrap">
+                <div id="propertyGrid" class="property-grid"></div>
+
+                <section id="calendarSection" class="dashboard-section">
+                    <div class="section-title">
+                        <h1>Calendar</h1>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-card">
+                            <h3>Today's Meetings</h3>
+                            <div class="meeting">
+                                <p class="meeting-time">09:00 AM</p>
+                                <p>Apartment Viewing • Stockholm</p>
+                            </div>
+                            <div class="meeting">
+                                <p class="meeting-time">12:30 PM</p>
+                                <p>Customer Contract Meeting</p>
+                            </div>
+                            <div class="meeting">
+                                <p class="meeting-time">03:00 PM</p>
+                                <p>Inspection • Storgatan 1</p>
+                            </div>
+                        </div>
+                        <div class="calendar-card">
+                            <h3>Upcoming Events</h3>
+                            <ul>
+                                <li>Rent Payment Deadline</li>
+                                <li>New Tenant Meeting</li>
+                                <li>Property Inspection</li>
+                                <li>Maintenance Visit</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="rentalsSection" class="dashboard-section">
+                    <div class="section-title">
+                        <h1>Rentals</h1>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stats-card">
+                            <h2 id="totalApartmentsStat">0</h2>
+                            <p>Total Apartments</p>
+                        </div>
+                        <div class="stats-card">
+                            <h2 id="occupiedApartmentsStat">0</h2>
+                            <p>Occupied</p>
+                        </div>
+                        <div class="stats-card">
+                            <h2 id="availableApartmentsStat">0</h2>
+                            <p>Available</p>
+                        </div>
+                        <div class="stats-card">
+                            <h2>98%</h2>
+                            <p>Customer Satisfaction</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="customerCareSection" class="dashboard-section">
+                    <div class="section-title">
+                        <h1>Customer Care</h1>
+                    </div>
+                    <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Lägenhet</th>
-                                    <th>Fastighet</th>
-                                    <th>Plan</th>
-                                    <th>Hyra</th>
+                                    <th>Customer</th>
+                                    <th>Issue</th>
                                     <th>Status</th>
-                                    <th>Egenskaper</th>
-                                    <th>Hyresgäst</th>
+                                    <th>Priority</th>
                                 </tr>
                             </thead>
-                            <tbody id="apartmentRows"></tbody>
+                            <tbody>
+                                <tr>
+                                    <td>Viktor Nilsson</td>
+                                    <td>Heating Problem</td>
+                                    <td><span class="status open">Open</span></td>
+                                    <td>High</td>
+                                </tr>
+                                <tr>
+                                    <td>Elsa Andersson</td>
+                                    <td>Broken Window</td>
+                                    <td><span class="status progress">In Progress</span></td>
+                                    <td>Medium</td>
+                                </tr>
+                                <tr>
+                                    <td>Amir Hassan</td>
+                                    <td>Water Leakage</td>
+                                    <td><span class="status closed">Closed</span></td>
+                                    <td>High</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
-                </article>
+                </section>
+
+                <section id="accountingSection" class="dashboard-section">
+                    <div class="section-title">
+                        <h1>Accounting</h1>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stats-card">
+                            <h2 id="totalRevenueStat">0kr</h2>
+                            <p>Total Revenue</p>
+                        </div>
+                        <div class="stats-card">
+                            <h2>240 000kr</h2>
+                            <p>Expenses</p>
+                        </div>
+                        <div class="stats-card">
+                            <h2>89%</h2>
+                            <p>Rent Paid</p>
+                        </div>
+                        <div class="stats-card">
+                            <h2>45</h2>
+                            <p>Pending Invoices</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="ordersSection" class="dashboard-section">
+                    <div class="section-title">
+                        <h1>Orders</h1>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Supplier</th>
+                                    <th>Product</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#1024</td>
+                                    <td>IKEA</td>
+                                    <td>Kitchen Furniture</td>
+                                    <td><span class="status progress">Shipping</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#1025</td>
+                                    <td>JYSK</td>
+                                    <td>Bed Package</td>
+                                    <td><span class="status open">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#1026</td>
+                                    <td>Electrolux</td>
+                                    <td>Washing Machine</td>
+                                    <td><span class="status closed">Delivered</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="inspectionsSection" class="dashboard-section">
+                    <div class="section-title">
+                        <h1>Inspections</h1>
+                    </div>
+                    <div class="inspection-grid">
+                        <div class="inspection-card">
+                            <h3>Apartment 1001</h3>
+                            <p>Date: 12 June</p>
+                            <p>Inspector: Adam Smith</p>
+                            <button>Open Report</button>
+                        </div>
+                        <div class="inspection-card">
+                            <h3>Apartment 1203</h3>
+                            <p>Date: 15 June</p>
+                            <p>Inspector: Emma Nilsson</p>
+                            <button>Open Report</button>
+                        </div>
+                        <div class="inspection-card">
+                            <h3>Apartment 1402</h3>
+                            <p>Date: 18 June</p>
+                            <p>Inspector: Johan Berg</p>
+                            <button>Open Report</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="settingsSection" class="dashboard-section">
+                    <div class="section-title">
+                        <h1>Settings</h1>
+                    </div>
+                    <div class="settings-box">
+                        <div class="setting-item">
+                            <label>Dark Mode</label>
+                            <input type="checkbox">
+                        </div>
+                        <div class="setting-item">
+                            <label>Email Notifications</label>
+                            <input type="checkbox" checked>
+                        </div>
+                        <div class="setting-item">
+                            <label>Auto Save Reports</label>
+                            <input type="checkbox" checked>
+                        </div>
+                        <button class="save-btn">Save Settings</button>
+                    </div>
+                </section>
             </section>
-        </section>
-    </main>
+        </main>
+    </div>
 
     <script>
+        const imageUrls = [
+            'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200',
+            'https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1200',
+            'https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1200',
+            'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200',
+            'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200',
+            'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?q=80&w=1200'
+        ];
+
         const apartmentForm = document.getElementById('apartmentForm');
-        const apartmentRows = document.getElementById('apartmentRows');
+        const propertyGrid = document.getElementById('propertyGrid');
         const propertySelect = document.getElementById('propertyId');
         const message = document.getElementById('apartmentMessage');
-        const numberSearchForm = document.getElementById('numberSearchForm');
-        const numberSearch = document.getElementById('numberSearch');
+        const toggleFormButton = document.getElementById('toggleFormButton');
+        const formPanel = document.getElementById('formPanel');
+        const topSearchForm = document.getElementById('topSearchForm');
+        const topSearch = document.getElementById('topSearch');
+        const sizeFilter = document.getElementById('sizeFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const locationFilter = document.getElementById('locationFilter');
+        const filterButton = document.getElementById('filterButton');
+
+        let apartments = [];
+        let properties = [];
 
         function setMessage(text, type = 'info') {
             message.textContent = text;
@@ -113,23 +1040,20 @@
             return tenant ? [tenant.firstName, tenant.lastName].filter(Boolean).join(' ').trim() : '';
         }
 
-        function formatDate(value) {
-            return value ? new Date(value).toLocaleDateString('sv-SE') : '';
+        function propertyTitle(apartment) {
+            const address = apartment.property?.address || 'Okänd adress';
+            return `${address} ${apartment.apartmentNumber}`;
         }
 
-        function featurePills(apartment) {
-            const features = [
-                apartment.electricityIncluded ? 'El' : null,
-                apartment.waterIncluded ? 'Vatten' : null,
-                apartment.internetIncluded ? 'Internet' : null,
-                apartment.balcony ? 'Balkong' : null,
-                apartment.furnished ? 'Möblerad' : null,
-                apartment.availableFrom ? `Från ${formatDate(apartment.availableFrom)}` : null
-            ].filter(Boolean);
+        function locationText(apartment) {
+            return apartment.property?.city || 'Okänd plats';
+        }
 
-            return features.length
-                ? features.map((feature) => `<span class="feature-pill">${feature}</span>`).join('')
-                : '<span class="muted">Inga valda</span>';
+        function includedText(apartment) {
+            if (apartment.electricityIncluded) return 'Electricity Includes';
+            if (apartment.waterIncluded) return 'Water Includes';
+            if (apartment.internetIncluded) return 'Internet Includes';
+            return apartment.status || 'Property';
         }
 
         async function requestJson(url, options) {
@@ -140,58 +1064,124 @@
             return response.status === 204 ? null : response.json();
         }
 
+        function passesSize(apartment) {
+            if (!sizeFilter.value) return true;
+            if (sizeFilter.value === 'small') return apartment.size < 45;
+            if (sizeFilter.value === 'medium') return apartment.size >= 45 && apartment.size <= 70;
+            return apartment.size > 70;
+        }
+
+        function filteredApartments() {
+            const query = topSearch.value.trim().toLowerCase();
+            return apartments.filter((apartment) => {
+                const searchable = [
+                    apartment.apartmentNumber,
+                    apartment.property?.address,
+                    apartment.property?.city,
+                    apartment.status,
+                    tenantName(apartment.tenant)
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                return passesSize(apartment)
+                    && (!statusFilter.value || apartment.status === statusFilter.value)
+                    && (!locationFilter.value || locationText(apartment) === locationFilter.value)
+                    && (!query || searchable.includes(query));
+            });
+        }
+
+        function renderCards() {
+            const visibleApartments = filteredApartments();
+            propertyGrid.innerHTML = '';
+
+            if (visibleApartments.length === 0) {
+                propertyGrid.innerHTML = '<div class="card"><h2>No apartments found</h2><p class="location">Try another search or filter.</p></div>';
+                return;
+            }
+
+            visibleApartments.forEach((apartment, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${imageUrls[index % imageUrls.length]}" alt="Apartment">
+                    <h2>${propertyTitle(apartment)}</h2>
+                    <div class="property-info">
+                        <span>${apartment.size}kvm</span>
+                        <span>${includedText(apartment)}</span>
+                    </div>
+                    <div class="property-info">
+                        <span>${apartment.rooms || 0} Rooms</span>
+                        <span>${apartment.balcony ? 'Balcony' : apartment.furnished ? 'Furnished' : apartment.status || ''}</span>
+                    </div>
+                    <p class="location">${locationText(apartment)}</p>
+                    <div class="card-bottom">
+                        <div class="price">${Number(apartment.rent || 0).toLocaleString('sv-SE')}kr</div>
+                        <a href="apartment.html?id=${apartment.apartmentID}" class="read-more">
+                            Read More
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
+                `;
+                propertyGrid.appendChild(card);
+            });
+        }
+
+        function updateDashboardSections() {
+            const total = apartments.length;
+            const occupied = apartments.filter((apartment) => apartment.tenantID || apartment.tenant).length;
+            const available = total - occupied;
+            const revenue = apartments.reduce((sum, apartment) => sum + Number(apartment.rent || 0), 0);
+
+            document.getElementById('totalApartmentsStat').textContent = total;
+            document.getElementById('occupiedApartmentsStat').textContent = occupied;
+            document.getElementById('availableApartmentsStat').textContent = available;
+            document.getElementById('totalRevenueStat').textContent = `${revenue.toLocaleString('sv-SE')}kr`;
+        }
+
         async function loadProperties() {
-            const properties = await requestJson('/api/property');
+            properties = await requestJson('/api/property');
             propertySelect.innerHTML = '<option value="">Välj fastighet</option>';
+            locationFilter.innerHTML = '<option value="">Location...</option>';
+
+            const cities = new Set();
             properties.forEach((property) => {
                 const option = document.createElement('option');
                 option.value = property.propertyId;
                 option.textContent = `${property.address}, ${property.city}`;
                 propertySelect.appendChild(option);
+                cities.add(property.city);
+            });
+
+            cities.forEach((city) => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                locationFilter.appendChild(option);
             });
         }
 
         async function loadApartments() {
-            const apartments = await requestJson('/api/apartments');
-            apartmentRows.innerHTML = '';
-
-            if (apartments.length === 0) {
-                apartmentRows.innerHTML = '<tr><td colspan="7">Inga lägenheter hittades.</td></tr>';
-                return;
-            }
-
-            apartments.forEach((apartment) => {
-                const name = tenantName(apartment.tenant);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><a href="apartment.html?id=${apartment.apartmentID}"><strong>${apartment.apartmentNumber}</strong></a><div class="muted">${apartment.size} kvm</div></td>
-                    <td>${apartment.property?.address ?? '-'}<div class="muted">${apartment.property?.city ?? ''}</div></td>
-                    <td>${apartment.rooms || 0} rum, vån ${apartment.floor ?? 0}</td>
-                    <td>${apartment.rent} kr</td>
-                    <td>${apartment.status || 'Ledig'}</td>
-                    <td>${featurePills(apartment)}</td>
-                    <td><span class="badge ${name ? 'occupied' : 'vacant'}">${name || 'Ledig'}</span></td>
-                `;
-                apartmentRows.appendChild(row);
-            });
+            apartments = await requestJson('/api/apartments');
+            renderCards();
+            updateDashboardSections();
         }
 
-        numberSearchForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const number = numberSearch.value.trim();
-            if (!number) {
-                return;
+        toggleFormButton.addEventListener('click', () => {
+            formPanel.classList.toggle('open');
+            if (formPanel.classList.contains('open')) {
+                formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-
-            const response = await fetch(`/api/apartments/number/${encodeURIComponent(number)}`);
-            if (response.ok) {
-                const apartment = await response.json();
-                window.location.href = `apartment.html?id=${apartment.apartmentID}`;
-                return;
-            }
-
-            setMessage('Hittade ingen lägenhet med det numret.', 'error');
         });
+
+        topSearchForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            renderCards();
+        });
+
+        topSearch.addEventListener('input', renderCards);
+        filterButton.addEventListener('click', renderCards);
+        sizeFilter.addEventListener('change', renderCards);
+        statusFilter.addEventListener('change', renderCards);
+        locationFilter.addEventListener('change', renderCards);
 
         apartmentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -237,7 +1227,7 @@
                 await Promise.all([loadProperties(), loadApartments()]);
             } catch (error) {
                 console.error(error);
-                setMessage('Kunde inte ladda data från servern.', 'error');
+                propertyGrid.innerHTML = '<div class="card"><h2>Could not load data</h2><p class="location">Check the server and database.</p></div>';
             }
         }
 
