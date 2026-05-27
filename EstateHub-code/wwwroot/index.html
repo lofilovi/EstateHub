@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -458,6 +458,22 @@
             margin-top: 60px;
         }
 
+        .page {
+            display: none;
+            padding-bottom: 50px;
+        }
+
+        .active-page {
+            display: block;
+        }
+
+        .menu-link.active {
+            background: #d9eaf3;
+            border-left: 6px solid #5b96b7;
+            color: #5b96b7;
+            font-weight: 600;
+        }
+
         .section-title {
             margin-bottom: 25px;
         }
@@ -503,6 +519,66 @@
             padding-left: 18px;
             color: #555;
             line-height: 2;
+        }
+
+        .calendar-wrapper {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+        }
+
+        .calendar-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .calendar-top button {
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 12px;
+            background: #5b96b7;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+            color: #777;
+        }
+
+        .calendar-grid-box {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+        }
+
+        .calendar-date {
+            background: #f5f5f5;
+            height: 90px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .calendar-date:hover {
+            background: #d9eaf3;
+        }
+
+        .active-date {
+            background: #5b96b7;
+            color: #fff;
         }
 
         .stats-grid {
@@ -655,31 +731,31 @@
                 </a>
 
                 <nav class="menu">
-                    <a href="index.html" class="active">
+                    <a href="#" class="menu-link active" data-page="overview-page">
                         <i class="fa-solid fa-table-cells-large"></i>
                         <span>Overview</span>
                     </a>
-                    <a href="#calendarSection">
+                    <a href="#" class="menu-link" data-page="calendar-page">
                         <i class="fa-regular fa-calendar"></i>
                         <span>Calendar</span>
                     </a>
-                    <a href="#rentalsSection">
+                    <a href="#" class="menu-link" data-page="rentals-page">
                         <i class="fa-regular fa-building"></i>
                         <span>Rentals</span>
                     </a>
-                    <a href="#customerCareSection">
+                    <a href="#" class="menu-link" data-page="customer-page">
                         <i class="fa-regular fa-user"></i>
                         <span>Customer Care</span>
                     </a>
-                    <a href="#accountingSection">
+                    <a href="#" class="menu-link" data-page="accounting-page">
                         <i class="fa-solid fa-calculator"></i>
                         <span>Accounting</span>
                     </a>
-                    <a href="#ordersSection">
+                    <a href="#" class="menu-link" data-page="orders-page">
                         <i class="fa-solid fa-box"></i>
                         <span>Orders</span>
                     </a>
-                    <a href="#inspectionsSection">
+                    <a href="#" class="menu-link" data-page="inspection-page">
                         <i class="fa-regular fa-clipboard"></i>
                         <span>Inspections</span>
                     </a>
@@ -692,7 +768,7 @@
                         <i class="fa-regular fa-circle-question"></i>
                         <span>Help</span>
                     </a>
-                    <a href="#settingsSection">
+                    <a href="#" class="menu-link" data-page="settings-page">
                         <i class="fa-solid fa-gear"></i>
                         <span>Settings</span>
                     </a>
@@ -727,6 +803,7 @@
             </header>
 
             <section class="content">
+                <section id="overview-page" class="page active-page">
                 <div class="content-header">
                     <h1>Apartments</h1>
                     <button id="toggleFormButton" class="add-btn" type="button">
@@ -740,7 +817,7 @@
                         <option value="">Property Size...</option>
                         <option value="small">Under 45 kvm</option>
                         <option value="medium">45-70 kvm</option>
-                        <option value="large">Över 70 kvm</option>
+                        <option value="large">Ã–ver 70 kvm</option>
                     </select>
 
                     <select id="statusFilter">
@@ -759,15 +836,15 @@
                 </div>
 
                 <section id="formPanel" class="form-box" aria-labelledby="apartmentFormTitle">
-                    <h2 id="apartmentFormTitle">Lägg till lägenhet</h2>
+                    <h2 id="apartmentFormTitle">LÃ¤gg till lÃ¤genhet</h2>
                     <form id="apartmentForm">
                         <div class="form-grid">
-                            <label>Lägenhetsnummer <input id="apartmentNumber" type="text" required></label>
+                            <label>LÃ¤genhetsnummer <input id="apartmentNumber" type="text" required></label>
                             <label>Storlek, kvm <input id="size" type="number" min="1" step="0.1" required></label>
                             <label>Hyra, kr <input id="rent" type="number" min="0" step="1" required></label>
-                            <label>Fastighet <select id="propertyId" required><option value="">Välj fastighet</option></select></label>
+                            <label>Fastighet <select id="propertyId" required><option value="">VÃ¤lj fastighet</option></select></label>
                             <label>Rum <input id="rooms" type="number" min="0" step="1" value="1"></label>
-                            <label>Våning <input id="floor" type="number" step="1" value="0"></label>
+                            <label>VÃ¥ning <input id="floor" type="number" step="1" value="0"></label>
                             <label>Status
                                 <select id="status">
                                     <option value="Ledig">Ledig</option>
@@ -776,15 +853,15 @@
                                     <option value="Renoveras">Renoveras</option>
                                 </select>
                             </label>
-                            <label>Tillgänglig från <input id="availableFrom" type="date"></label>
+                            <label>TillgÃ¤nglig frÃ¥n <input id="availableFrom" type="date"></label>
                         </div>
 
                         <div class="feature-grid" style="margin:18px 0;">
-                            <label class="check-label"><input id="electricityIncluded" type="checkbox"> El ingår</label>
-                            <label class="check-label"><input id="waterIncluded" type="checkbox"> Vatten ingår</label>
-                            <label class="check-label"><input id="internetIncluded" type="checkbox"> Internet ingår</label>
+                            <label class="check-label"><input id="electricityIncluded" type="checkbox"> El ingÃ¥r</label>
+                            <label class="check-label"><input id="waterIncluded" type="checkbox"> Vatten ingÃ¥r</label>
+                            <label class="check-label"><input id="internetIncluded" type="checkbox"> Internet ingÃ¥r</label>
                             <label class="check-label"><input id="balcony" type="checkbox"> Balkong</label>
-                            <label class="check-label"><input id="furnished" type="checkbox"> Möblerad</label>
+                            <label class="check-label"><input id="furnished" type="checkbox"> MÃ¶blerad</label>
                         </div>
 
                         <button class="save-btn" type="submit">Spara</button>
@@ -793,43 +870,60 @@
                 </section>
 
                 <div id="propertyGrid" class="property-grid"></div>
-
-                <section id="calendarSection" class="dashboard-section">
-                    <div class="section-title">
+                </section>
+                <section id="calendar-page" class="page">
+                    <div class="content-header">
                         <h1>Calendar</h1>
                     </div>
-                    <div class="calendar-grid">
-                        <div class="calendar-card">
-                            <h3>Today's Meetings</h3>
-                            <div class="meeting">
-                                <p class="meeting-time">09:00 AM</p>
-                                <p>Apartment Viewing • Stockholm</p>
-                            </div>
-                            <div class="meeting">
-                                <p class="meeting-time">12:30 PM</p>
-                                <p>Customer Contract Meeting</p>
-                            </div>
-                            <div class="meeting">
-                                <p class="meeting-time">03:00 PM</p>
-                                <p>Inspection • Storgatan 1</p>
-                            </div>
+                    <div class="calendar-wrapper">
+                        <div class="calendar-top">
+                            <button type="button"><i class="fa-solid fa-chevron-left"></i></button>
+                            <h2>June 2026</h2>
+                            <button type="button"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
-                        <div class="calendar-card">
-                            <h3>Upcoming Events</h3>
-                            <ul>
-                                <li>Rent Payment Deadline</li>
-                                <li>New Tenant Meeting</li>
-                                <li>Property Inspection</li>
-                                <li>Maintenance Visit</li>
-                            </ul>
+                        <div class="calendar-days">
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                            <div>Sun</div>
+                        </div>
+                        <div class="calendar-grid-box">
+                            <div class="calendar-date">1</div>
+                            <div class="calendar-date">2</div>
+                            <div class="calendar-date active-date">3</div>
+                            <div class="calendar-date">4</div>
+                            <div class="calendar-date">5</div>
+                            <div class="calendar-date">6</div>
+                            <div class="calendar-date">7</div>
+                            <div class="calendar-date">8</div>
+                            <div class="calendar-date">9</div>
+                            <div class="calendar-date">10</div>
+                            <div class="calendar-date">11</div>
+                            <div class="calendar-date">12</div>
+                            <div class="calendar-date">13</div>
+                            <div class="calendar-date">14</div>
+                            <div class="calendar-date">15</div>
+                            <div class="calendar-date">16</div>
+                            <div class="calendar-date">17</div>
+                            <div class="calendar-date">18</div>
+                            <div class="calendar-date">19</div>
+                            <div class="calendar-date">20</div>
+                            <div class="calendar-date">21</div>
+                            <div class="calendar-date">22</div>
+                            <div class="calendar-date">23</div>
+                            <div class="calendar-date">24</div>
+                            <div class="calendar-date">25</div>
+                            <div class="calendar-date">26</div>
+                            <div class="calendar-date">27</div>
+                            <div class="calendar-date">28</div>
                         </div>
                     </div>
                 </section>
-
-                <section id="rentalsSection" class="dashboard-section">
-                    <div class="section-title">
-                        <h1>Rentals</h1>
-                    </div>
+<section id="rentals-page" class="page">
+                    <div class="content-header"><h1>Rentals</h1></div>
                     <div class="stats-grid">
                         <div class="stats-card">
                             <h2 id="totalApartmentsStat">0</h2>
@@ -850,10 +944,8 @@
                     </div>
                 </section>
 
-                <section id="customerCareSection" class="dashboard-section">
-                    <div class="section-title">
-                        <h1>Customer Care</h1>
-                    </div>
+                <section id="customer-page" class="page">
+                    <div class="content-header"><h1>Customer Care</h1></div>
                     <div class="table-container">
                         <table>
                             <thead>
@@ -888,10 +980,8 @@
                     </div>
                 </section>
 
-                <section id="accountingSection" class="dashboard-section">
-                    <div class="section-title">
-                        <h1>Accounting</h1>
-                    </div>
+                <section id="accounting-page" class="page">
+                    <div class="content-header"><h1>Accounting</h1></div>
                     <div class="stats-grid">
                         <div class="stats-card">
                             <h2 id="totalRevenueStat">0kr</h2>
@@ -912,10 +1002,8 @@
                     </div>
                 </section>
 
-                <section id="ordersSection" class="dashboard-section">
-                    <div class="section-title">
-                        <h1>Orders</h1>
-                    </div>
+                <section id="orders-page" class="page">
+                    <div class="content-header"><h1>Orders</h1></div>
                     <div class="table-container">
                         <table>
                             <thead>
@@ -950,10 +1038,8 @@
                     </div>
                 </section>
 
-                <section id="inspectionsSection" class="dashboard-section">
-                    <div class="section-title">
-                        <h1>Inspections</h1>
-                    </div>
+                <section id="inspection-page" class="page">
+                    <div class="content-header"><h1>Inspections</h1></div>
                     <div class="inspection-grid">
                         <div class="inspection-card">
                             <h3>Apartment 1001</h3>
@@ -976,10 +1062,8 @@
                     </div>
                 </section>
 
-                <section id="settingsSection" class="dashboard-section">
-                    <div class="section-title">
-                        <h1>Settings</h1>
-                    </div>
+                <section id="settings-page" class="page">
+                    <div class="content-header"><h1>Settings</h1></div>
                     <div class="settings-box">
                         <div class="setting-item">
                             <label>Dark Mode</label>
@@ -1022,9 +1106,23 @@
         const statusFilter = document.getElementById('statusFilter');
         const locationFilter = document.getElementById('locationFilter');
         const filterButton = document.getElementById('filterButton');
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const pages = document.querySelectorAll('.page');
 
         let apartments = [];
         let properties = [];
+
+        menuLinks.forEach((link) => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+
+                menuLinks.forEach((item) => item.classList.remove('active'));
+                link.classList.add('active');
+
+                pages.forEach((page) => page.classList.remove('active-page'));
+                document.getElementById(link.dataset.page)?.classList.add('active-page');
+            });
+        });
 
         function setMessage(text, type = 'info') {
             message.textContent = text;
@@ -1041,12 +1139,12 @@
         }
 
         function propertyTitle(apartment) {
-            const address = apartment.property?.address || 'Okänd adress';
+            const address = apartment.property?.address || 'OkÃ¤nd adress';
             return `${address} ${apartment.apartmentNumber}`;
         }
 
         function locationText(apartment) {
-            return apartment.property?.city || 'Okänd plats';
+            return apartment.property?.city || 'OkÃ¤nd plats';
         }
 
         function includedText(apartment) {
@@ -1139,7 +1237,7 @@
 
         async function loadProperties() {
             properties = await requestJson('/api/property');
-            propertySelect.innerHTML = '<option value="">Välj fastighet</option>';
+            propertySelect.innerHTML = '<option value="">VÃ¤lj fastighet</option>';
             locationFilter.innerHTML = '<option value="">Location...</option>';
 
             const cities = new Set();
@@ -1215,10 +1313,10 @@
                 document.getElementById('rooms').value = '1';
                 document.getElementById('floor').value = '0';
                 await loadApartments();
-                setMessage('Lägenheten sparades.');
+                setMessage('LÃ¤genheten sparades.');
             } catch (error) {
                 console.error(error);
-                setMessage('Kunde inte spara lägenheten. Kontrollera uppgifterna och databasen.', 'error');
+                setMessage('Kunde inte spara lÃ¤genheten. Kontrollera uppgifterna och databasen.', 'error');
             }
         });
 
@@ -1235,3 +1333,4 @@
     </script>
 </body>
 </html>
+
