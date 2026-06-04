@@ -370,39 +370,31 @@ namespace EstateHub_code
             using var scope = app.Services.CreateScope();
             using var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            if (!context.CalendarEvents.Any())
+            void AddCalendarEventIfMissing(string title, string category, string location, DateTime startsAt)
             {
-                context.CalendarEvents.AddRange(
-                    new EstateHub_code.Models.CalendarEvent
+                if (!context.CalendarEvents.Any(calendarEvent =>
+                    calendarEvent.Title == title &&
+                    calendarEvent.Location == location &&
+                    calendarEvent.StartsAt == startsAt))
+                {
+                    context.CalendarEvents.Add(new EstateHub_code.Models.CalendarEvent
                     {
-                        Title = "Apartment Viewing",
-                        Category = "Viewing",
-                        Location = "Stockholm",
-                        StartsAt = DateTime.Today.AddHours(9)
-                    },
-                    new EstateHub_code.Models.CalendarEvent
-                    {
-                        Title = "Customer Contract Meeting",
-                        Category = "Contract",
-                        Location = "EstateHub Office",
-                        StartsAt = DateTime.Today.AddHours(12).AddMinutes(30)
-                    },
-                    new EstateHub_code.Models.CalendarEvent
-                    {
-                        Title = "Inspection",
-                        Category = "Inspection",
-                        Location = "Storgatan 1",
-                        StartsAt = DateTime.Today.AddHours(15)
-                    },
-                    new EstateHub_code.Models.CalendarEvent
-                    {
-                        Title = "Rent Payment Deadline",
-                        Category = "Accounting",
-                        Location = "All properties",
-                        StartsAt = DateTime.Today.AddDays(7)
-                    }
-                );
+                        Title = title,
+                        Category = category,
+                        Location = location,
+                        StartsAt = startsAt
+                    });
+                }
             }
+
+            AddCalendarEventIfMissing("Apartment Viewing", "Viewing", "Parkvägen 8", DateTime.Today.AddHours(9));
+            AddCalendarEventIfMissing("Tenant Meeting", "Meeting", "EstateHub Office", DateTime.Today.AddHours(11));
+            AddCalendarEventIfMissing("Inspection", "Inspection", "Storgatan 1", DateTime.Today.AddHours(15));
+            AddCalendarEventIfMissing("Heating Maintenance", "Maintenance", "Solgatan 12", DateTime.Today.AddDays(1).AddHours(10));
+            AddCalendarEventIfMissing("Contract Signing", "Meeting", "Kungsgatan 24", DateTime.Today.AddDays(2).AddHours(13));
+            AddCalendarEventIfMissing("Move-in Inspection", "Inspection", "Linnégatan 6", DateTime.Today.AddDays(4).AddHours(8));
+            AddCalendarEventIfMissing("Elevator Service", "Maintenance", "Södra Förstadsgatan 18", DateTime.Today.AddDays(5).AddHours(14));
+            AddCalendarEventIfMissing("Rent Payment Deadline", "Accounting", "All properties", DateTime.Today.AddDays(7));
 
             if (!context.CustomerIssues.Any())
             {
@@ -413,23 +405,58 @@ namespace EstateHub_code
                 );
             }
 
-            if (!context.WorkOrders.Any())
+            void AddWorkOrderIfMissing(string orderNumber, string supplier, string product, string status, DateTime orderDate)
             {
-                context.WorkOrders.AddRange(
-                    new EstateHub_code.Models.WorkOrder { OrderNumber = "#1024", Supplier = "IKEA", Product = "Kitchen Furniture", Status = "Shipping", OrderDate = DateTime.Today.AddDays(16) },
-                    new EstateHub_code.Models.WorkOrder { OrderNumber = "#1025", Supplier = "JYSK", Product = "Bed Package", Status = "Pending", OrderDate = DateTime.Today.AddDays(17) },
-                    new EstateHub_code.Models.WorkOrder { OrderNumber = "#1026", Supplier = "Electrolux", Product = "Washing Machine", Status = "Delivered", OrderDate = DateTime.Today.AddDays(18) }
-                );
+                if (!context.WorkOrders.Any(order => order.OrderNumber == orderNumber))
+                {
+                    context.WorkOrders.Add(new EstateHub_code.Models.WorkOrder
+                    {
+                        OrderNumber = orderNumber,
+                        Supplier = supplier,
+                        Product = product,
+                        Status = status,
+                        OrderDate = orderDate
+                    });
+                }
             }
 
-            if (!context.Inspections.Any())
+            AddWorkOrderIfMissing("#1024", "IKEA", "Kitchen Furniture", "Shipping", DateTime.Today.AddDays(16));
+            AddWorkOrderIfMissing("#1025", "JYSK", "Bed Package", "Pending", DateTime.Today.AddDays(17));
+            AddWorkOrderIfMissing("#1026", "Electrolux", "Washing Machine", "Delivered", DateTime.Today.AddDays(18));
+            AddWorkOrderIfMissing("#1027", "Bauhaus", "Bathroom Tiles", "Pending", DateTime.Today.AddDays(4));
+            AddWorkOrderIfMissing("#1028", "Clas Ohlson", "Smoke Detectors", "Delivered", DateTime.Today.AddDays(2));
+            AddWorkOrderIfMissing("#1029", "Ahlsell", "Plumbing Parts", "In Progress", DateTime.Today.AddDays(6));
+            AddWorkOrderIfMissing("#1030", "Elgiganten", "Refrigerator", "Shipping", DateTime.Today.AddDays(8));
+            AddWorkOrderIfMissing("#1031", "Hornbach", "Paint and Tools", "Pending", DateTime.Today.AddDays(10));
+            AddWorkOrderIfMissing("#1032", "Securitas", "Entry System Service", "In Progress", DateTime.Today.AddDays(11));
+            AddWorkOrderIfMissing("#1033", "Riksbyggen Service", "Stairwell Cleaning", "Delivered", DateTime.Today.AddDays(12));
+            AddWorkOrderIfMissing("#1034", "Telia", "Fiber Router Package", "Shipping", DateTime.Today.AddDays(13));
+            AddWorkOrderIfMissing("#1035", "KONE", "Elevator Maintenance", "Pending", DateTime.Today.AddDays(15));
+
+            void AddInspectionIfMissing(string apartmentNumber, DateTime inspectionDate, string inspector, string status, string notes)
             {
-                context.Inspections.AddRange(
-                    new EstateHub_code.Models.Inspection { ApartmentNumber = "1001", InspectionDate = DateTime.Today.AddDays(16), Inspector = "Adam Smith", Status = "Planned", Notes = "Standard move-in check" },
-                    new EstateHub_code.Models.Inspection { ApartmentNumber = "1203", InspectionDate = DateTime.Today.AddDays(19), Inspector = "Emma Nilsson", Status = "Planned", Notes = "Balcony and bathroom" },
-                    new EstateHub_code.Models.Inspection { ApartmentNumber = "1402", InspectionDate = DateTime.Today.AddDays(22), Inspector = "Johan Berg", Status = "Planned", Notes = "Renovation follow-up" }
-                );
+                if (!context.Inspections.Any(inspection =>
+                    inspection.ApartmentNumber == apartmentNumber &&
+                    inspection.InspectionDate == inspectionDate))
+                {
+                    context.Inspections.Add(new EstateHub_code.Models.Inspection
+                    {
+                        ApartmentNumber = apartmentNumber,
+                        InspectionDate = inspectionDate,
+                        Inspector = inspector,
+                        Status = status,
+                        Notes = notes
+                    });
+                }
             }
+
+            AddInspectionIfMissing("1001", DateTime.Today.AddDays(16), "Adam Smith", "Planned", "Standard move-in check. Verify keys, smoke detector, bathroom seal, and kitchen appliances.");
+            AddInspectionIfMissing("1203", DateTime.Today.AddDays(19), "Emma Nilsson", "Planned", "Balcony and bathroom inspection. Tenant reported weak ventilation.");
+            AddInspectionIfMissing("1402", DateTime.Today.AddDays(22), "Johan Berg", "Planned", "Renovation follow-up. Check flooring, wall finish, and final electrical work.");
+            AddInspectionIfMissing("0802", DateTime.Today.AddDays(7), "Maja Berg", "Completed", "Apartment is ready for viewing. Minor paint touch-up completed in hallway.");
+            AddInspectionIfMissing("2104", DateTime.Today.AddDays(10), "Noah Lind", "In Progress", "Window handle replacement ordered. Follow-up required after supplier delivery.");
+            AddInspectionIfMissing("1505", DateTime.Today.AddDays(14), "Emma Nilsson", "Completed", "Kitchen, bathroom, balcony and storage inspected. No critical issues found.");
+            AddInspectionIfMissing("0404", DateTime.Today.AddDays(21), "Johan Berg", "Planned", "Renovation status report. Confirm plumbing work and new cabinet installation.");
 
             if (!context.AppSettings.Any())
             {
