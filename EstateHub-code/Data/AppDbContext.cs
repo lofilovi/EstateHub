@@ -10,6 +10,11 @@ namespace EstateHub_code.Data
         public DbSet<Property> Properties { get; set; }
         public DbSet<Apartment> Apartments { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<CalendarEvent> CalendarEvents { get; set; }
+        public DbSet<CustomerIssue> CustomerIssues { get; set; }
+        public DbSet<WorkOrder> WorkOrders { get; set; }
+        public DbSet<Inspection> Inspections { get; set; }
+        public DbSet<AppSetting> AppSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,7 +53,8 @@ namespace EstateHub_code.Data
                     WaterIncluded = true,
                     InternetIncluded = false,
                     Balcony = true,
-                    Furnished = false
+                    Furnished = false,
+                    ImageUrl = "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200"
                 }
             );
         }

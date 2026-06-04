@@ -20,6 +20,7 @@ namespace EstateHub_code.Models
         public bool InternetIncluded { get; set; }
         public bool Balcony { get; set; }
         public bool Furnished { get; set; }
+        public string ImageUrl { get; set; } = "";
 
         // --- NAVIGATION PROPERTY ---
         // Detta gör att vi kan skriva lägenhet.Property.Address

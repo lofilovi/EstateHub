@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="EstateHub-code/EstateHub-code.csproj" />
-  <Project Path="EstateHubDesktop/EstateHubDesktop.csproj" />
 </Solution>

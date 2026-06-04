@@ -845,6 +845,7 @@
                             <label>Fastighet <select id="propertyId" required><option value="">VÃ¤lj fastighet</option></select></label>
                             <label>Rum <input id="rooms" type="number" min="0" step="1" value="1"></label>
                             <label>VÃ¥ning <input id="floor" type="number" step="1" value="0"></label>
+                            <label>Bild URL <input id="imageUrl" type="url" placeholder="https://..."></label>
                             <label>Status
                                 <select id="status">
                                     <option value="Ledig">Ledig</option>
@@ -920,6 +921,7 @@
                             <div class="calendar-date">27</div>
                             <div class="calendar-date">28</div>
                         </div>
+                        <div id="calendarEvents" class="calendar-card" style="margin-top:25px;"></div>
                     </div>
                 </section>
 <section id="rentals-page" class="page">
@@ -956,26 +958,7 @@
                                     <th>Priority</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Viktor Nilsson</td>
-                                    <td>Heating Problem</td>
-                                    <td><span class="status open">Open</span></td>
-                                    <td>High</td>
-                                </tr>
-                                <tr>
-                                    <td>Elsa Andersson</td>
-                                    <td>Broken Window</td>
-                                    <td><span class="status progress">In Progress</span></td>
-                                    <td>Medium</td>
-                                </tr>
-                                <tr>
-                                    <td>Amir Hassan</td>
-                                    <td>Water Leakage</td>
-                                    <td><span class="status closed">Closed</span></td>
-                                    <td>High</td>
-                                </tr>
-                            </tbody>
+                            <tbody id="customerIssuesRows"></tbody>
                         </table>
                     </div>
                 </section>
@@ -988,15 +971,15 @@
                             <p>Total Revenue</p>
                         </div>
                         <div class="stats-card">
-                            <h2>240 000kr</h2>
+                            <h2 id="expensesStat">0kr</h2>
                             <p>Expenses</p>
                         </div>
                         <div class="stats-card">
-                            <h2>89%</h2>
+                            <h2 id="rentPaidStat">0%</h2>
                             <p>Rent Paid</p>
                         </div>
                         <div class="stats-card">
-                            <h2>45</h2>
+                            <h2 id="pendingInvoicesStat">0</h2>
                             <p>Pending Invoices</p>
                         </div>
                     </div>
@@ -1014,52 +997,14 @@
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#1024</td>
-                                    <td>IKEA</td>
-                                    <td>Kitchen Furniture</td>
-                                    <td><span class="status progress">Shipping</span></td>
-                                </tr>
-                                <tr>
-                                    <td>#1025</td>
-                                    <td>JYSK</td>
-                                    <td>Bed Package</td>
-                                    <td><span class="status open">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td>#1026</td>
-                                    <td>Electrolux</td>
-                                    <td>Washing Machine</td>
-                                    <td><span class="status closed">Delivered</span></td>
-                                </tr>
-                            </tbody>
+                            <tbody id="ordersRows"></tbody>
                         </table>
                     </div>
                 </section>
 
                 <section id="inspection-page" class="page">
                     <div class="content-header"><h1>Inspections</h1></div>
-                    <div class="inspection-grid">
-                        <div class="inspection-card">
-                            <h3>Apartment 1001</h3>
-                            <p>Date: 12 June</p>
-                            <p>Inspector: Adam Smith</p>
-                            <button>Open Report</button>
-                        </div>
-                        <div class="inspection-card">
-                            <h3>Apartment 1203</h3>
-                            <p>Date: 15 June</p>
-                            <p>Inspector: Emma Nilsson</p>
-                            <button>Open Report</button>
-                        </div>
-                        <div class="inspection-card">
-                            <h3>Apartment 1402</h3>
-                            <p>Date: 18 June</p>
-                            <p>Inspector: Johan Berg</p>
-                            <button>Open Report</button>
-                        </div>
-                    </div>
+                    <div id="inspectionsGrid" class="inspection-grid"></div>
                 </section>
 
                 <section id="settings-page" class="page">
@@ -1067,17 +1012,17 @@
                     <div class="settings-box">
                         <div class="setting-item">
                             <label>Dark Mode</label>
-                            <input type="checkbox">
+                            <input id="darkModeSetting" type="checkbox">
                         </div>
                         <div class="setting-item">
                             <label>Email Notifications</label>
-                            <input type="checkbox" checked>
+                            <input id="emailNotificationsSetting" type="checkbox" checked>
                         </div>
                         <div class="setting-item">
                             <label>Auto Save Reports</label>
-                            <input type="checkbox" checked>
+                            <input id="autoSaveReportsSetting" type="checkbox" checked>
                         </div>
-                        <button class="save-btn">Save Settings</button>
+                        <button id="saveSettingsButton" class="save-btn">Save Settings</button>
                     </div>
                 </section>
             </section>
@@ -1108,6 +1053,14 @@
         const filterButton = document.getElementById('filterButton');
         const menuLinks = document.querySelectorAll('.menu-link');
         const pages = document.querySelectorAll('.page');
+        const calendarEvents = document.getElementById('calendarEvents');
+        const customerIssuesRows = document.getElementById('customerIssuesRows');
+        const ordersRows = document.getElementById('ordersRows');
+        const inspectionsGrid = document.getElementById('inspectionsGrid');
+        const darkModeSetting = document.getElementById('darkModeSetting');
+        const emailNotificationsSetting = document.getElementById('emailNotificationsSetting');
+        const autoSaveReportsSetting = document.getElementById('autoSaveReportsSetting');
+        const saveSettingsButton = document.getElementById('saveSettingsButton');
 
         let apartments = [];
         let properties = [];
@@ -1148,9 +1101,9 @@
         }
 
         function includedText(apartment) {
-            if (apartment.electricityIncluded) return 'Electricity Includes';
-            if (apartment.waterIncluded) return 'Water Includes';
-            if (apartment.internetIncluded) return 'Internet Includes';
+            if (apartment.electricityIncluded) return 'Electricity Included';
+            if (apartment.waterIncluded) return 'Water Included';
+            if (apartment.internetIncluded) return 'Internet Included';
             return apartment.status || 'Property';
         }
 
@@ -1199,8 +1152,9 @@
             visibleApartments.forEach((apartment, index) => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                const imageUrl = apartment.imageUrl || imageUrls[index % imageUrls.length];
                 card.innerHTML = `
-                    <img src="${imageUrls[index % imageUrls.length]}" alt="Apartment">
+                    <img src="${imageUrl}" alt="Apartment ${apartment.apartmentNumber}">
                     <h2>${propertyTitle(apartment)}</h2>
                     <div class="property-info">
                         <span>${apartment.size}kvm</span>
@@ -1233,6 +1187,97 @@
             document.getElementById('occupiedApartmentsStat').textContent = occupied;
             document.getElementById('availableApartmentsStat').textContent = available;
             document.getElementById('totalRevenueStat').textContent = `${revenue.toLocaleString('sv-SE')}kr`;
+        }
+
+        function statusClass(status) {
+            const normalized = (status || '').toLowerCase();
+            if (normalized.includes('closed') || normalized.includes('delivered')) return 'closed';
+            if (normalized.includes('progress') || normalized.includes('shipping')) return 'progress';
+            return 'open';
+        }
+
+        function formatDate(value) {
+            return new Date(value).toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' });
+        }
+
+        function formatTime(value) {
+            return new Date(value).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function loadCalendarEvents() {
+            const events = await requestJson('/api/dashboard/calendar');
+            calendarEvents.innerHTML = `
+                <h3>Synced Events</h3>
+                ${events.map((event) => `
+                    <div class="meeting">
+                        <p class="meeting-time">${formatTime(event.startsAt)}</p>
+                        <p>${event.title} • ${event.location}</p>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        async function loadCustomerIssues() {
+            const issues = await requestJson('/api/dashboard/customer-issues');
+            customerIssuesRows.innerHTML = issues.map((issue) => `
+                <tr>
+                    <td>${issue.customerName}</td>
+                    <td>${issue.issue}</td>
+                    <td><span class="status ${statusClass(issue.status)}">${issue.status}</span></td>
+                    <td>${issue.priority}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadAccounting() {
+            const accounting = await requestJson('/api/dashboard/accounting');
+            document.getElementById('totalRevenueStat').textContent = `${Number(accounting.totalRevenue).toLocaleString('sv-SE')}kr`;
+            document.getElementById('expensesStat').textContent = `${Number(accounting.expenses).toLocaleString('sv-SE')}kr`;
+            document.getElementById('rentPaidStat').textContent = `${accounting.rentPaidPercent}%`;
+            document.getElementById('pendingInvoicesStat').textContent = accounting.pendingInvoices;
+        }
+
+        async function loadOrders() {
+            const orders = await requestJson('/api/dashboard/orders');
+            ordersRows.innerHTML = orders.map((order) => `
+                <tr>
+                    <td>${order.orderNumber}</td>
+                    <td>${order.supplier}</td>
+                    <td>${order.product}</td>
+                    <td><span class="status ${statusClass(order.status)}">${order.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadInspections() {
+            const inspections = await requestJson('/api/dashboard/inspections');
+            inspectionsGrid.innerHTML = inspections.map((inspection) => `
+                <div class="inspection-card">
+                    <h3>Apartment ${inspection.apartmentNumber}</h3>
+                    <p>Date: ${formatDate(inspection.inspectionDate)}</p>
+                    <p>Inspector: ${inspection.inspector}</p>
+                    <p>Status: ${inspection.status}</p>
+                    <button type="button" title="${inspection.notes}">Open Report</button>
+                </div>
+            `).join('');
+        }
+
+        async function loadSettings() {
+            const settings = await requestJson('/api/dashboard/settings');
+            darkModeSetting.checked = settings.darkMode;
+            emailNotificationsSetting.checked = settings.emailNotifications;
+            autoSaveReportsSetting.checked = settings.autoSaveReports;
+        }
+
+        async function loadSyncedDashboardData() {
+            await Promise.all([
+                loadCalendarEvents(),
+                loadCustomerIssues(),
+                loadAccounting(),
+                loadOrders(),
+                loadInspections(),
+                loadSettings()
+            ]);
         }
 
         async function loadProperties() {
@@ -1281,6 +1326,18 @@
         statusFilter.addEventListener('change', renderCards);
         locationFilter.addEventListener('change', renderCards);
 
+        saveSettingsButton.addEventListener('click', async () => {
+            await requestJson('/api/dashboard/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    darkMode: darkModeSetting.checked,
+                    emailNotifications: emailNotificationsSetting.checked,
+                    autoSaveReports: autoSaveReportsSetting.checked
+                })
+            });
+        });
+
         apartmentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             clearMessage();
@@ -1300,6 +1357,7 @@
                 internetIncluded: document.getElementById('internetIncluded').checked,
                 balcony: document.getElementById('balcony').checked,
                 furnished: document.getElementById('furnished').checked,
+                imageUrl: document.getElementById('imageUrl').value.trim(),
                 tenantID: null
             };
 
@@ -1322,7 +1380,7 @@
 
         async function init() {
             try {
-                await Promise.all([loadProperties(), loadApartments()]);
+                await Promise.all([loadProperties(), loadApartments(), loadSyncedDashboardData()]);
             } catch (error) {
                 console.error(error);
                 propertyGrid.innerHTML = '<div class="card"><h2>Could not load data</h2><p class="location">Check the server and database.</p></div>';

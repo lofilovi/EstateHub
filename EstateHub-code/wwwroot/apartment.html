@@ -88,7 +88,9 @@
             const apartment = await response.json();
             pageTitle.textContent = `Lägenhet ${apartment.apartmentNumber}`;
             pageSubtitle.textContent = `${apartment.property?.address ?? '-'}, ${apartment.property?.city ?? ''}`;
+            const imageUrl = apartment.imageUrl || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200';
             content.innerHTML = `
+                <img src="${imageUrl}" alt="Apartment ${apartment.apartmentNumber}" style="width:100%; max-height:360px; object-fit:cover; border-radius:18px; margin-bottom:24px;">
                 <div class="detail-grid">
                     <div class="detail"><span class="label">Storlek</span>${apartment.size} kvm</div>
                     <div class="detail"><span class="label">Rum</span>${apartment.rooms || 0}</div>
