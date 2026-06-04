@@ -1,11 +1,32 @@
-🏡 EstateHub EstateHub is a backend-driven property management solution designed to streamline the administration of real estate portfolios.
+## How to Run EstateHub
 
-Key Features:
+1. Clone the repository.
 
-Relational Database Architecture: Manages complex relationships between Properties, Apartments, and Tenants using MySQL.
+2. Open the project in Visual Studio.
 
-RESTful API: Robust endpoints for CRUD operations powered by ASP.NET Core.
+3. Make sure MySQL is running.
 
-Automated Documentation: Fully integrated Swagger UI for easy API testing and exploration.
+4. Update the database connection string in:
 
-Data Mapping: Uses Entity Framework Core for seamless Object-Relational Mapping (ORM).
+   `EstateHub-code/appsettings.json`
+
+5. Run the ASP.NET Core project:
+
+   `EstateHub-code`
+
+6. Open the app in your browser:
+
+   `http://localhost:5008`
+
+## Tech Stack
+
+- ASP.NET Core
+- C#
+- Entity Framework Core
+- MySQL
+- HTML, CSS, JavaScript
+
+## Notes
+
+The dashboard uses seeded demo data for apartments, tenants, orders, inspections, reports, calendar events, and accounting.
+The UI design was made in Figma.
