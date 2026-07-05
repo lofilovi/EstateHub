@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace EstateHub_code.Controllers
 {
@@ -59,6 +60,221 @@ namespace EstateHub_code.Controllers
                 .ToListAsync();
         }
 
+        public class RoomItemDto
+        {
+            public string Room { get; set; } = "";
+            public string Item { get; set; } = "";
+            public string Condition { get; set; } = "";
+            public string Notes { get; set; } = "";
+        }
+
+        public class UtilityItemDto
+        {
+            public string System { get; set; } = "";
+            public string Condition { get; set; } = "";
+            public string Notes { get; set; } = "";
+        }
+
+        public class MeterReadingDto
+        {
+            public string Meter { get; set; } = "";
+            public string Reading { get; set; } = "";
+            public string ReadingDate { get; set; } = "";
+        }
+
+        public class IssueDto
+        {
+            public string Issue { get; set; } = "";
+            public string Location { get; set; } = "";
+            public string Priority { get; set; } = "Medium";
+            public string PhotoRef { get; set; } = "";
+        }
+
+        public class PhotoDto
+        {
+            public string Label { get; set; } = "";
+            public string Description { get; set; } = "";
+        }
+
+        public class InspectionReportRequest
+        {
+            public string PropertyAddress { get; set; } = "";
+            public string InspectionType { get; set; } = "Move-in";
+            public DateTime InspectionDate { get; set; }
+            public string InspectorName { get; set; } = "";
+            public string PresentDuringInspection { get; set; } = "";
+            public string WeatherConditions { get; set; } = "";
+            public string OverallCondition { get; set; } = "Good";
+            public string Summary { get; set; } = "";
+            public List<RoomItemDto> RoomItems { get; set; } = new();
+            public List<UtilityItemDto> Utilities { get; set; } = new();
+            public List<MeterReadingDto> MeterReadings { get; set; } = new();
+            public List<string> IncludedItems { get; set; } = new();
+            public List<IssueDto> Issues { get; set; } = new();
+            public List<PhotoDto> Photos { get; set; } = new();
+            public string TenantSignatureName { get; set; } = "";
+            public string TenantSignatureDate { get; set; } = "";
+            public string LandlordSignatureName { get; set; } = "";
+            public string LandlordSignatureDate { get; set; } = "";
+        }
+
+        private static List<RoomItemDto> DefaultRoomItems() => new()
+        {
+            new() { Room = "Entrance / Hallway", Item = "Floor", Condition = "Good" },
+            new() { Room = "Entrance / Hallway", Item = "Walls", Condition = "Good" },
+            new() { Room = "Entrance / Hallway", Item = "Door lock", Condition = "Good" },
+            new() { Room = "Entrance / Hallway", Item = "Lighting", Condition = "Good" },
+            new() { Room = "Living Room", Item = "Walls/ceiling", Condition = "Good" },
+            new() { Room = "Living Room", Item = "Floor", Condition = "Good" },
+            new() { Room = "Living Room", Item = "Windows", Condition = "Good" },
+            new() { Room = "Living Room", Item = "Radiator", Condition = "Good" },
+            new() { Room = "Living Room", Item = "Electrical outlets", Condition = "Good" },
+            new() { Room = "Kitchen", Item = "Faucet", Condition = "Good" },
+            new() { Room = "Kitchen", Item = "Cabinets", Condition = "Good" },
+            new() { Room = "Kitchen", Item = "Stove/oven", Condition = "Good" },
+            new() { Room = "Kitchen", Item = "Refrigerator", Condition = "Good" },
+            new() { Room = "Kitchen", Item = "Ventilation/exhaust fan", Condition = "Good" },
+            new() { Room = "Kitchen", Item = "Countertop", Condition = "Good" },
+            new() { Room = "Bedroom", Item = "Walls/ceiling", Condition = "Good" },
+            new() { Room = "Bedroom", Item = "Floor", Condition = "Good" },
+            new() { Room = "Bedroom", Item = "Window", Condition = "Good" },
+            new() { Room = "Bedroom", Item = "Closet", Condition = "Good" },
+            new() { Room = "Bathroom", Item = "Toilet", Condition = "Good" },
+            new() { Room = "Bathroom", Item = "Sink", Condition = "Good" },
+            new() { Room = "Bathroom", Item = "Shower/bath", Condition = "Good" },
+            new() { Room = "Bathroom", Item = "Ventilation fan", Condition = "Good" },
+            new() { Room = "Bathroom", Item = "Mold/mildew check", Condition = "None found" }
+        };
+
+        private static List<UtilityItemDto> DefaultUtilities() => new()
+        {
+            new() { System = "Electrical panel", Condition = "Good" },
+            new() { System = "Water heater", Condition = "Good" },
+            new() { System = "Heating system", Condition = "Good" },
+            new() { System = "Smoke detectors", Condition = "Good" }
+        };
+
+        private static List<MeterReadingDto> DefaultMeterReadings() => new()
+        {
+            new() { Meter = "Electricity" },
+            new() { Meter = "Water" }
+        };
+
+        private async Task<object> BuildInspectionReportDto(int inspectionId)
+        {
+            var report = await _context.InspectionReports.FirstOrDefaultAsync(r => r.InspectionId == inspectionId);
+
+            if (report != null)
+            {
+                return new
+                {
+                    report.InspectionReportId,
+                    report.InspectionId,
+                    report.PropertyAddress,
+                    report.InspectionType,
+                    report.InspectionDate,
+                    report.InspectorName,
+                    report.PresentDuringInspection,
+                    report.WeatherConditions,
+                    report.OverallCondition,
+                    report.Summary,
+                    roomItems = JsonSerializer.Deserialize<List<RoomItemDto>>(report.RoomItemsJson) ?? new(),
+                    utilities = JsonSerializer.Deserialize<List<UtilityItemDto>>(report.UtilitiesJson) ?? new(),
+                    meterReadings = JsonSerializer.Deserialize<List<MeterReadingDto>>(report.MeterReadingsJson) ?? new(),
+                    includedItems = JsonSerializer.Deserialize<List<string>>(report.IncludedItemsJson) ?? new(),
+                    issues = JsonSerializer.Deserialize<List<IssueDto>>(report.IssuesJson) ?? new(),
+                    photos = JsonSerializer.Deserialize<List<PhotoDto>>(report.PhotosJson) ?? new(),
+                    report.TenantSignatureName,
+                    report.TenantSignatureDate,
+                    report.LandlordSignatureName,
+                    report.LandlordSignatureDate,
+                    isNew = false
+                };
+            }
+
+            var inspection = await _context.Inspections.FindAsync(inspectionId);
+            var apartment = inspection == null
+                ? null
+                : await _context.Apartments.Include(a => a.Property)
+                    .FirstOrDefaultAsync(a => a.ApartmentNumber == inspection.ApartmentNumber);
+
+            var address = apartment?.Property != null
+                ? $"{apartment.Property.Address}, Apartment {apartment.ApartmentNumber}, {apartment.Property.PostalCode} {apartment.Property.City}"
+                : $"Apartment {inspection?.ApartmentNumber}";
+
+            return new
+            {
+                inspectionReportId = 0,
+                inspectionId,
+                propertyAddress = address,
+                inspectionType = "Move-in",
+                inspectionDate = inspection?.InspectionDate ?? DateTime.Today,
+                inspectorName = inspection?.Inspector ?? "",
+                presentDuringInspection = "",
+                weatherConditions = "",
+                overallCondition = "Good",
+                summary = inspection?.Notes ?? "",
+                roomItems = DefaultRoomItems(),
+                utilities = DefaultUtilities(),
+                meterReadings = DefaultMeterReadings(),
+                includedItems = new List<string>(),
+                issues = new List<IssueDto>(),
+                photos = new List<PhotoDto>(),
+                tenantSignatureName = "",
+                tenantSignatureDate = "",
+                landlordSignatureName = "",
+                landlordSignatureDate = "",
+                isNew = true
+            };
+        }
+
+        [HttpGet("inspections/{inspectionId}/report")]
+        public async Task<ActionResult<object>> GetInspectionReport(int inspectionId)
+        {
+            var inspectionExists = await _context.Inspections.AnyAsync(i => i.InspectionId == inspectionId);
+            if (!inspectionExists)
+            {
+                return NotFound();
+            }
+
+            return await BuildInspectionReportDto(inspectionId);
+        }
+
+        [HttpPut("inspections/{inspectionId}/report")]
+        public async Task<ActionResult<object>> PutInspectionReport(int inspectionId, InspectionReportRequest request)
+        {
+            var report = await _context.InspectionReports.FirstOrDefaultAsync(r => r.InspectionId == inspectionId);
+
+            if (report == null)
+            {
+                report = new InspectionReport { InspectionId = inspectionId };
+                _context.InspectionReports.Add(report);
+            }
+
+            report.PropertyAddress = request.PropertyAddress;
+            report.InspectionType = request.InspectionType;
+            report.InspectionDate = request.InspectionDate;
+            report.InspectorName = request.InspectorName;
+            report.PresentDuringInspection = request.PresentDuringInspection;
+            report.WeatherConditions = request.WeatherConditions;
+            report.OverallCondition = request.OverallCondition;
+            report.Summary = request.Summary;
+            report.RoomItemsJson = JsonSerializer.Serialize(request.RoomItems);
+            report.UtilitiesJson = JsonSerializer.Serialize(request.Utilities);
+            report.MeterReadingsJson = JsonSerializer.Serialize(request.MeterReadings);
+            report.IncludedItemsJson = JsonSerializer.Serialize(request.IncludedItems);
+            report.IssuesJson = JsonSerializer.Serialize(request.Issues);
+            report.PhotosJson = JsonSerializer.Serialize(request.Photos);
+            report.TenantSignatureName = request.TenantSignatureName;
+            report.TenantSignatureDate = request.TenantSignatureDate;
+            report.LandlordSignatureName = request.LandlordSignatureName;
+            report.LandlordSignatureDate = request.LandlordSignatureDate;
+
+            await _context.SaveChangesAsync();
+
+            return await BuildInspectionReportDto(inspectionId);
+        }
+
         [HttpGet("accounting")]
         public async Task<ActionResult<object>> GetAccounting()
         {
@@ -95,6 +311,16 @@ namespace EstateHub_code.Controllers
                 record.Expenses,
                 profit = record.Revenue - record.Expenses
             }).ToList();
+        }
+
+        [HttpPost("support-messages")]
+        public async Task<ActionResult<SupportMessage>> PostSupportMessage(SupportMessage message)
+        {
+            message.SupportMessageId = 0;
+            message.SubmittedAt = DateTime.Now;
+            _context.SupportMessages.Add(message);
+            await _context.SaveChangesAsync();
+            return Ok(message);
         }
 
         [HttpGet("settings")]
@@ -262,6 +488,27 @@ namespace EstateHub_code.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Password updated." });
+        }
+
+        public class LoginRequest
+        {
+            public string Email { get; set; } = "";
+            public string Password { get; set; } = "";
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<object>> Login(LoginRequest request)
+        {
+            var profile = await _context.AdminProfiles.FirstOrDefaultAsync();
+
+            if (profile == null
+                || !string.Equals(profile.Email, request.Email, StringComparison.OrdinalIgnoreCase)
+                || profile.PasswordHash != HashPassword(request.Password))
+            {
+                return Unauthorized(new { message = "Incorrect email or password." });
+            }
+
+            return Ok(ProfileDto(profile));
         }
 
         private static string HashPassword(string password)

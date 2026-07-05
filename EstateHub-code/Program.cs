@@ -355,6 +355,43 @@ namespace EstateHub_code
                 );
                 """,
                 """
+                CREATE TABLE IF NOT EXISTS support_messages (
+                    SupportMessageId int NOT NULL AUTO_INCREMENT,
+                    FullName varchar(200) NOT NULL DEFAULT '',
+                    Email varchar(200) NOT NULL DEFAULT '',
+                    Phone varchar(50) NOT NULL DEFAULT '',
+                    Message text,
+                    SubmittedAt datetime NOT NULL,
+                    PRIMARY KEY (SupportMessageId)
+                );
+                """,
+                """
+                CREATE TABLE IF NOT EXISTS inspection_reports (
+                    InspectionReportId int NOT NULL AUTO_INCREMENT,
+                    InspectionId int NOT NULL,
+                    PropertyAddress varchar(300) NOT NULL DEFAULT '',
+                    InspectionType varchar(50) NOT NULL DEFAULT 'Move-in',
+                    InspectionDate datetime NOT NULL,
+                    InspectorName varchar(200) NOT NULL DEFAULT '',
+                    PresentDuringInspection varchar(300) NOT NULL DEFAULT '',
+                    WeatherConditions varchar(200) NOT NULL DEFAULT '',
+                    OverallCondition varchar(50) NOT NULL DEFAULT 'Good',
+                    Summary text,
+                    RoomItemsJson longtext,
+                    UtilitiesJson longtext,
+                    MeterReadingsJson longtext,
+                    IncludedItemsJson longtext,
+                    IssuesJson longtext,
+                    PhotosJson longtext,
+                    TenantSignatureName varchar(200) NOT NULL DEFAULT '',
+                    TenantSignatureDate varchar(50) NOT NULL DEFAULT '',
+                    LandlordSignatureName varchar(200) NOT NULL DEFAULT '',
+                    LandlordSignatureDate varchar(50) NOT NULL DEFAULT '',
+                    PRIMARY KEY (InspectionReportId),
+                    UNIQUE KEY unique_inspection (InspectionId)
+                );
+                """,
+                """
                 CREATE TABLE IF NOT EXISTS accounting_records (
                     AccountingRecordId int NOT NULL AUTO_INCREMENT,
                     Year int NOT NULL,
