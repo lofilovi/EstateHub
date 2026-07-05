@@ -69,5 +69,26 @@ namespace EstateHub_code.Controllers
 
             return CreatedAtAction(nameof(GetApartment), new { id = apartment.ApartmentID }, apartment);
         }
+
+        // PUT: api/apartments/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutApartment(int id, Apartment apartment)
+        {
+            if (id != apartment.ApartmentID) return BadRequest();
+
+            _context.Entry(apartment).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Apartments.Any(a => a.ApartmentID == id)) return NotFound();
+                else throw;
+            }
+
+            return NoContent();
+        }
     }
 }

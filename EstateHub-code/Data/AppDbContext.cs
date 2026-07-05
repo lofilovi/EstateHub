@@ -15,6 +15,8 @@ namespace EstateHub_code.Data
         public DbSet<WorkOrder> WorkOrders { get; set; }
         public DbSet<Inspection> Inspections { get; set; }
         public DbSet<AppSetting> AppSettings { get; set; }
+        public DbSet<AdminProfile> AdminProfiles { get; set; }
+        public DbSet<AccountingRecord> AccountingRecords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

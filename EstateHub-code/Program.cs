@@ -32,6 +32,7 @@ namespace EstateHub_code
             EnsureDashboardTables(app);
             SeedDemoData(app);
             SeedDashboardData(app);
+            SeedAccountingHistory(app);
 
             // 4. Konfigurera hur appen ska bete sig (Middleware)
             if (app.Environment.IsDevelopment())
@@ -39,10 +40,7 @@ namespace EstateHub_code
                 app.MapOpenApi();
             }
 
-            app.UseDefaultFiles(new DefaultFilesOptions
-            {
-                DefaultFileNames = { "dashboard.html" }
-            });
+            app.UseDefaultFiles();
             app.UseStaticFiles();  // Tillater att servern skickar HTML/CSS/JS-filer
             app.UseAuthorization();
             app.MapControllers();
@@ -332,6 +330,7 @@ namespace EstateHub_code
                     Product varchar(200) NOT NULL,
                     Status varchar(50) NOT NULL,
                     OrderDate datetime NOT NULL,
+                    ApartmentNumber varchar(50) NULL,
                     PRIMARY KEY (WorkOrderId)
                 );
                 """,
@@ -354,6 +353,30 @@ namespace EstateHub_code
                     AutoSaveReports tinyint(1) NOT NULL DEFAULT 1,
                     PRIMARY KEY (AppSettingId)
                 );
+                """,
+                """
+                CREATE TABLE IF NOT EXISTS accounting_records (
+                    AccountingRecordId int NOT NULL AUTO_INCREMENT,
+                    Year int NOT NULL,
+                    Month int NOT NULL,
+                    Revenue decimal(12,2) NOT NULL DEFAULT 0,
+                    Expenses decimal(12,2) NOT NULL DEFAULT 0,
+                    PRIMARY KEY (AccountingRecordId)
+                );
+                """,
+                """
+                CREATE TABLE IF NOT EXISTS admin_profile (
+                    AdminProfileId int NOT NULL AUTO_INCREMENT,
+                    FirstName varchar(100) NOT NULL DEFAULT '',
+                    LastName varchar(100) NOT NULL DEFAULT '',
+                    Email varchar(200) NOT NULL DEFAULT '',
+                    Phone varchar(50) NOT NULL DEFAULT '',
+                    Role varchar(100) NOT NULL DEFAULT 'Administrator',
+                    Responsibilities varchar(500) NOT NULL DEFAULT '',
+                    PasswordHash varchar(200) NOT NULL DEFAULT '',
+                    ImageUrl varchar(500) NOT NULL DEFAULT '',
+                    PRIMARY KEY (AdminProfileId)
+                );
                 """
             };
 
@@ -363,6 +386,22 @@ namespace EstateHub_code
                 command.CommandText = statement;
                 command.ExecuteNonQuery();
             }
+
+            var adminProfileColumns = new Dictionary<string, string>
+            {
+                ["FirstName"] = "varchar(100) NOT NULL DEFAULT ''",
+                ["LastName"] = "varchar(100) NOT NULL DEFAULT ''",
+                ["ImageUrl"] = "varchar(500) NOT NULL DEFAULT ''"
+            };
+
+            EnsureColumns(connection, "admin_profile", adminProfileColumns);
+
+            var workOrderColumns = new Dictionary<string, string>
+            {
+                ["ApartmentNumber"] = "varchar(50) NULL"
+            };
+
+            EnsureColumns(connection, "work_orders", workOrderColumns);
         }
 
         private static void SeedDashboardData(WebApplication app)
@@ -405,7 +444,7 @@ namespace EstateHub_code
                 );
             }
 
-            void AddWorkOrderIfMissing(string orderNumber, string supplier, string product, string status, DateTime orderDate)
+            void AddWorkOrderIfMissing(string orderNumber, string supplier, string product, string status, DateTime orderDate, string? apartmentNumber = null)
             {
                 if (!context.WorkOrders.Any(order => order.OrderNumber == orderNumber))
                 {
@@ -415,19 +454,20 @@ namespace EstateHub_code
                         Supplier = supplier,
                         Product = product,
                         Status = status,
-                        OrderDate = orderDate
+                        OrderDate = orderDate,
+                        ApartmentNumber = apartmentNumber
                     });
                 }
             }
 
-            AddWorkOrderIfMissing("#1024", "IKEA", "Kitchen Furniture", "Shipping", DateTime.Today.AddDays(16));
-            AddWorkOrderIfMissing("#1025", "JYSK", "Bed Package", "Pending", DateTime.Today.AddDays(17));
-            AddWorkOrderIfMissing("#1026", "Electrolux", "Washing Machine", "Delivered", DateTime.Today.AddDays(18));
-            AddWorkOrderIfMissing("#1027", "Bauhaus", "Bathroom Tiles", "Pending", DateTime.Today.AddDays(4));
-            AddWorkOrderIfMissing("#1028", "Clas Ohlson", "Smoke Detectors", "Delivered", DateTime.Today.AddDays(2));
-            AddWorkOrderIfMissing("#1029", "Ahlsell", "Plumbing Parts", "In Progress", DateTime.Today.AddDays(6));
-            AddWorkOrderIfMissing("#1030", "Elgiganten", "Refrigerator", "Shipping", DateTime.Today.AddDays(8));
-            AddWorkOrderIfMissing("#1031", "Hornbach", "Paint and Tools", "Pending", DateTime.Today.AddDays(10));
+            AddWorkOrderIfMissing("#1024", "IKEA", "Kitchen Furniture", "Shipping", DateTime.Today.AddDays(16), "1001");
+            AddWorkOrderIfMissing("#1025", "JYSK", "Bed Package", "Pending", DateTime.Today.AddDays(17), "1203");
+            AddWorkOrderIfMissing("#1026", "Electrolux", "Washing Machine", "Delivered", DateTime.Today.AddDays(18), "0802");
+            AddWorkOrderIfMissing("#1027", "Bauhaus", "Bathroom Tiles", "Pending", DateTime.Today.AddDays(4), "1402");
+            AddWorkOrderIfMissing("#1028", "Clas Ohlson", "Smoke Detectors", "Delivered", DateTime.Today.AddDays(2), "999");
+            AddWorkOrderIfMissing("#1029", "Ahlsell", "Plumbing Parts", "In Progress", DateTime.Today.AddDays(6), "2104");
+            AddWorkOrderIfMissing("#1030", "Elgiganten", "Refrigerator", "Shipping", DateTime.Today.AddDays(8), "1505");
+            AddWorkOrderIfMissing("#1031", "Hornbach", "Paint and Tools", "Pending", DateTime.Today.AddDays(10), "0404");
             AddWorkOrderIfMissing("#1032", "Securitas", "Entry System Service", "In Progress", DateTime.Today.AddDays(11));
             AddWorkOrderIfMissing("#1033", "Riksbyggen Service", "Stairwell Cleaning", "Delivered", DateTime.Today.AddDays(12));
             AddWorkOrderIfMissing("#1034", "Telia", "Fiber Router Package", "Shipping", DateTime.Today.AddDays(13));
@@ -461,6 +501,43 @@ namespace EstateHub_code
             if (!context.AppSettings.Any())
             {
                 context.AppSettings.Add(new EstateHub_code.Models.AppSetting());
+            }
+
+            context.SaveChanges();
+        }
+
+        private static void SeedAccountingHistory(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            using var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var baseRevenue = context.Apartments.Sum(apartment => (decimal?)apartment.Rent) ?? 100000m;
+            var random = new Random(42);
+            var today = DateTime.Today;
+
+            for (var i = 11; i >= 0; i--)
+            {
+                var date = today.AddMonths(-i);
+                var year = date.Year;
+                var month = date.Month;
+
+                if (context.AccountingRecords.Any(record => record.Year == year && record.Month == month))
+                {
+                    continue;
+                }
+
+                var variance = 0.85 + (random.NextDouble() * 0.3);
+                var revenue = Math.Round(baseRevenue * (decimal)variance / 100) * 100;
+                var expenseRate = 0.15m + (decimal)(random.NextDouble() * 0.08);
+                var expenses = Math.Round(revenue * expenseRate / 100) * 100;
+
+                context.AccountingRecords.Add(new EstateHub_code.Models.AccountingRecord
+                {
+                    Year = year,
+                    Month = month,
+                    Revenue = revenue,
+                    Expenses = expenses
+                });
             }
 
             context.SaveChanges();

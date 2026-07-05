@@ -32,14 +32,14 @@ a {
 }
 
 .app-shell {
-    width: min(1180px, calc(100% - 40px));
-    min-height: calc(100vh - 48px);
-    margin: 24px auto;
+    width: min(1240px, calc(100% - 48px));
+    min-height: calc(100vh - 56px);
+    margin: 28px auto;
     display: grid;
     grid-template-columns: 76px 1fr;
-    gap: 28px;
-    padding: 46px 40px;
-    border-radius: 18px;
+    gap: 32px;
+    padding: 48px 44px;
+    border-radius: 20px;
     background: var(--shell);
 }
 
@@ -168,7 +168,7 @@ button {
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 16px;
+    gap: 20px;
 }
 
 .card,
@@ -181,7 +181,7 @@ button {
 
 .card,
 .table-card {
-    padding: 22px;
+    padding: 26px;
 }
 
 .stat-card {
