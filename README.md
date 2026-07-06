@@ -30,3 +30,6 @@
 
 The dashboard uses seeded demo data for apartments, tenants, orders, inspections, reports, calendar events, and accounting.
 The UI design was made in Figma.
+
+Login: viktor@estatehub.com
+Password: newpas123
