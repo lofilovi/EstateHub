@@ -1,9 +1,8 @@
 using EstateHub_code.Data;
 using EstateHub_code.Models;
+using EstateHub_code.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 
 namespace EstateHub_code.Controllers
@@ -384,7 +383,7 @@ namespace EstateHub_code.Controllers
                     Phone = "070-123 45 67",
                     Role = "Administrator",
                     Responsibilities = "Full access to properties, tenants, billing, and system settings.",
-                    PasswordHash = HashPassword("admin123"),
+                    PasswordHash = PasswordHasher.Hash("admin123"),
                     ImageUrl = "https://i.pravatar.cc/150?img=12"
                 };
                 _context.AdminProfiles.Add(profile);
@@ -474,7 +473,7 @@ namespace EstateHub_code.Controllers
         {
             var profile = await _context.AdminProfiles.FirstOrDefaultAsync();
 
-            if (profile == null || profile.PasswordHash != HashPassword(request.CurrentPassword))
+            if (profile == null || profile.PasswordHash != PasswordHasher.Hash(request.CurrentPassword))
             {
                 return BadRequest(new { message = "Current password is incorrect." });
             }
@@ -484,7 +483,7 @@ namespace EstateHub_code.Controllers
                 return BadRequest(new { message = "New password must be at least 6 characters." });
             }
 
-            profile.PasswordHash = HashPassword(request.NewPassword);
+            profile.PasswordHash = PasswordHasher.Hash(request.NewPassword);
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Password updated." });
@@ -503,19 +502,12 @@ namespace EstateHub_code.Controllers
 
             if (profile == null
                 || !string.Equals(profile.Email, request.Email, StringComparison.OrdinalIgnoreCase)
-                || profile.PasswordHash != HashPassword(request.Password))
+                || profile.PasswordHash != PasswordHasher.Hash(request.Password))
             {
                 return Unauthorized(new { message = "Incorrect email or password." });
             }
 
             return Ok(ProfileDto(profile));
-        }
-
-        private static string HashPassword(string password)
-        {
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = SHA256.HashData(bytes);
-            return Convert.ToHexString(hash);
         }
 
         private static void DeleteUploadedProfilePhoto(string? imageUrl)

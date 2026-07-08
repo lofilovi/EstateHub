@@ -81,6 +81,14 @@ The dashboard loads directly — no login required to browse it. If you click **
 - MySQL
 - HTML, CSS, JavaScript (Chart.js for the Accounting charts)
 
+## Tests
+
+Unit tests live in `EstateHub-code.Tests` (xUnit + EF Core InMemory) and cover the login/password-hashing logic and the inspection report scaffold builder. Run them with:
+
+```
+dotnet test EstateHub-code.Tests
+```
+
 ## Notes
 
 - All demo data (apartments, tenants, orders, inspections, reports, calendar events, accounting) is seeded automatically and is safe to reset by dropping and recreating the database.
