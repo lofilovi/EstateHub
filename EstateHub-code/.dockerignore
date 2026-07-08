@@ -1,0 +1,6 @@
+bin/
+obj/
+wwwroot/uploads/profile/*
+!wwwroot/uploads/profile/.gitkeep
+appsettings.Development.json
+*.user

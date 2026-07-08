@@ -1,0 +1,30 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: estatehub
+      MYSQL_DATABASE: EstateHub
+    volumes:
+      - estatehub-mysql-data:/var/lib/mysql
+      - ./EstateHub-code/Database/setup.sql:/docker-entrypoint-initdb.d/01-setup.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pestatehub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: ./EstateHub-code
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=mysql;Database=EstateHub;User=root;Password=estatehub;"
+    ports:
+      - "5008:8080"
+
+volumes:
+  estatehub-mysql-data:

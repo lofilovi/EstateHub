@@ -34,12 +34,26 @@ It's the exact same UI, seeded with the same demo data, but all API calls are se
 
 The rest of this README covers the full version — the real ASP.NET Core + MySQL app.
 
-## Requirements
+## Run with Docker (recommended)
+
+Want the real app, MySQL included, without installing .NET or MySQL yourself? With [Docker](https://www.docker.com/products/docker-desktop/) installed, run:
+
+```
+docker compose up --build
+```
+
+This builds the app image, starts a MySQL 8.0 container, automatically creates the `EstateHub` database and schema from `EstateHub-code/Database/setup.sql`, and seeds demo data on first launch — the same as the manual setup below, just in one command. Once it's up, open `http://localhost:5008`.
+
+Data persists in a Docker volume between runs. To wipe it and start fresh: `docker compose down -v`.
+
+## Manual setup (without Docker)
+
+### Requirements
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download) (the project targets `net10.0`)
 - [MySQL Server 8.0+](https://dev.mysql.com/downloads/mysql/) running locally
 
-## Setup
+### Setup
 
 1. **Clone the repository.**
 
@@ -80,6 +94,7 @@ The dashboard loads directly — no login required to browse it. If you click **
 - Entity Framework Core + Pomelo (MySQL)
 - MySQL
 - HTML, CSS, JavaScript (Chart.js for the Accounting charts)
+- Docker & Docker Compose
 
 ## Tests
 
