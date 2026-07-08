@@ -2,6 +2,14 @@
 
 EstateHub is a backend-driven property management dashboard for landlords and property managers: apartments, tenants, rent, inspections, work orders, and accounting in one place.
 
+## Try it instantly (no setup required)
+
+Just want to look around without installing anything? Grab **`EstateHub-Offline/index.html`** and double-click it — it opens straight in your browser with no .NET, no MySQL, and no database to download.
+
+It's the exact same UI, seeded with the same demo data, but all API calls are served from an in-memory store persisted to your browser's `localStorage` instead of a real backend. Anything you add, edit, or delete is saved locally in your own browser — nothing is sent anywhere. See `EstateHub-Offline/README.md` for details and how to reset the demo data.
+
+The rest of this README covers the full version — the real ASP.NET Core + MySQL app.
+
 ## Requirements
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download) (the project targets `net10.0`)
