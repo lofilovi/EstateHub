@@ -7,7 +7,7 @@ EstateHub is a backend-driven property management dashboard for landlords and pr
 | | |
 |---|---|
 | **Overview** | **Rentals** |
-| ![Overview](docs/screenshots/overview.png) | ![Rentals](docs/screenshots/rentals.png) |
+| ![Overview](docs/screenshots/overview-light.png) | ![Rentals](docs/screenshots/rentals.png) |
 | **Customer Care** | **Calendar** |
 | ![Customer Care](docs/screenshots/customer-care.png) | ![Calendar](docs/screenshots/calendar-light.png) |
 | **Accounting** | **Orders** |
@@ -19,7 +19,9 @@ EstateHub is a backend-driven property management dashboard for landlords and pr
 
 **Dark Mode** (toggle it in Settings):
 
-![Calendar - Dark Mode](docs/screenshots/calendar-dark.png)
+| | |
+|---|---|
+| ![Overview - Dark Mode](docs/screenshots/overview-dark.png) | ![Calendar - Dark Mode](docs/screenshots/calendar-dark.png) |
 
 ## Try it instantly (no setup required)
 
