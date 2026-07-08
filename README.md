@@ -2,6 +2,25 @@
 
 EstateHub is a backend-driven property management dashboard for landlords and property managers: apartments, tenants, rent, inspections, work orders, and accounting in one place.
 
+## Screenshots
+
+| | |
+|---|---|
+| **Overview** | **Rentals** |
+| ![Overview](docs/screenshots/overview.png) | ![Rentals](docs/screenshots/rentals.png) |
+| **Customer Care** | **Calendar** |
+| ![Customer Care](docs/screenshots/customer-care.png) | ![Calendar](docs/screenshots/calendar-light.png) |
+| **Accounting** | **Orders** |
+| ![Accounting](docs/screenshots/accounting.png) | ![Orders](docs/screenshots/orders.png) |
+| **Inspections** | **Settings** |
+| ![Inspections](docs/screenshots/inspections.png) | ![Settings](docs/screenshots/settings.png) |
+| **Help / Contact** | **Login** |
+| ![Help](docs/screenshots/help-page.png) | ![Login](docs/screenshots/login.png) |
+
+**Dark Mode** (toggle it in Settings):
+
+![Calendar - Dark Mode](docs/screenshots/calendar-dark.png)
+
 ## Try it instantly (no setup required)
 
 Just want to look around without installing anything? Grab **`EstateHub-Offline/index.html`** and double-click it — it opens straight in your browser with no .NET, no MySQL, and no database to download.
