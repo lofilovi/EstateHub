@@ -88,6 +88,10 @@ The dashboard loads directly — no login required to browse it. If you click **
 - **Email:** `viktor@estatehub.com`
 - **Password:** `admin123`
 
+### API docs
+
+With the app running, browse the full REST API at `http://localhost:5008/scalar/v1` (interactive, generated from the live OpenAPI spec at `/openapi/v1.json`).
+
 ## Tech Stack
 
 - ASP.NET Core 10 / C#

@@ -1,5 +1,6 @@
 ﻿using EstateHub_code.Data;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using System.Data;
 
 namespace EstateHub_code
@@ -38,6 +39,7 @@ namespace EstateHub_code
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapScalarApiReference(options => options.WithTitle("EstateHub API"));
             }
 
             app.UseDefaultFiles();
