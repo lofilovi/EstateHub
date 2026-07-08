@@ -1,5 +1,8 @@
 # 🏡 EstateHub
 
+[![Build](https://github.com/lofilovi/EstateHub-code/actions/workflows/build.yml/badge.svg)](https://github.com/lofilovi/EstateHub-code/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 EstateHub is a backend-driven property management dashboard for landlords and property managers: apartments, tenants, rent, inspections, work orders, and accounting in one place.
 
 ## Screenshots
