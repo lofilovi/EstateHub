@@ -34,6 +34,48 @@
             --shadow-card: 0 20px 46px rgba(20, 24, 32, 0.09);
         }
 
+        body.dark-mode {
+            --bg: #14161a;
+            --surface: #1e2126;
+            --surface-alt: #262a30;
+            --ink: #f2f1ee;
+            --muted: #9aa0a8;
+            --line: #33373d;
+            --accent: #5b9dc4;
+            --accent-dark: #86c0e0;
+            --accent-soft: #24333c;
+            --accent-tint: #1c2830;
+            --green: #7fae8f;
+            --green-soft: #223229;
+            --amber: #d9a15c;
+            --amber-soft: #332a1a;
+            --danger: #e5726a;
+            --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.35);
+            --shadow-card: 0 20px 46px rgba(0, 0, 0, 0.45);
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .stats-card,
+        body.dark-mode .calendar-card,
+        body.dark-mode .inspection-card,
+        body.dark-mode .settings-box,
+        body.dark-mode .table-container,
+        body.dark-mode .sidebar,
+        body.dark-mode .topbar,
+        body.dark-mode .report-dialog,
+        body.dark-mode .login-form-inner input,
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            color: var(--ink);
+        }
+
+        body.dark-mode .card img,
+        body.dark-mode .profile-photo-preview,
+        body.dark-mode .apartment-modal-image {
+            filter: brightness(0.85);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -1865,7 +1907,7 @@
                             <input id="loginRemember" type="checkbox" checked>
                             Remember Me
                         </label>
-                        <a href="#" class="login-forgot">Forgot Password?</a>
+                        <a href="#" id="forgotPasswordLink" class="login-forgot">Forgot Password?</a>
                     </div>
 
                     <button class="login-submit" type="submit">Login</button>
@@ -3299,6 +3341,7 @@
         const loginPassword = document.getElementById('loginPassword');
         const toggleLoginPasswordButton = document.getElementById('toggleLoginPasswordButton');
         const loginMessage = document.getElementById('loginMessage');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
         const supportForm = document.getElementById('supportForm');
         const supportMessageStatus = document.getElementById('supportMessageStatus');
         const customerSortableHeaders = document.querySelectorAll('#customer-page th.sortable');
@@ -4514,12 +4557,19 @@
             printable.print();
         }
 
+        function applyDarkMode(enabled) {
+            document.body.classList.toggle('dark-mode', !!enabled);
+        }
+
         async function loadSettings() {
             const settings = await requestJson('/api/dashboard/settings');
             darkModeSetting.checked = settings.darkMode;
             emailNotificationsSetting.checked = settings.emailNotifications;
             autoSaveReportsSetting.checked = settings.autoSaveReports;
+            applyDarkMode(settings.darkMode);
         }
+
+        darkModeSetting.addEventListener('change', () => applyDarkMode(darkModeSetting.checked));
 
         async function loadSyncedDashboardData() {
             await Promise.all([
@@ -5195,6 +5245,12 @@
             toggleLoginPasswordButton.innerHTML = isPassword
                 ? '<i class="fa-regular fa-eye-slash"></i>'
                 : '<i class="fa-regular fa-eye"></i>';
+        });
+
+        forgotPasswordLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            loginMessage.textContent = 'Password reset isn\'t available in this demo. Please contact your system administrator to reset your password.';
+            loginMessage.className = 'message info';
         });
 
         loginForm.addEventListener('submit', async (event) => {

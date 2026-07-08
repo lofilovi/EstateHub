@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 # Local secrets - not committed
 EstateHub-code/appsettings.Development.json
+
+# Claude Code local tooling - not part of the app
+.claude/
